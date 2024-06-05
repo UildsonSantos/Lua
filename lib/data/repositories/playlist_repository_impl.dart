@@ -18,4 +18,12 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   Future<void> removePlaylist(int id) async {
     _playlists.removeWhere((playlist) => playlist.id == id);
   }
+
+  @override
+  Future<void> updatePlaylist(Playlist playlist) async {
+    final index = _playlists.indexWhere((p) => p.id == playlist.id);
+    if (index != -1) {
+      _playlists[index] = playlist;
+    }
+  }
 }
