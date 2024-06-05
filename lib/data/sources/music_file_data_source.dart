@@ -19,7 +19,7 @@ class MusicFileDataSource {
         final metadata = await MetadataRetriever.fromFile(File(file.path));
 
         songs.add(SongModel(
-          id: file.uri.toString(),
+          id: null, // ID será gerado pelo banco de dados
           title: metadata.trackName ?? file.uri.pathSegments.last,
           artist: metadata.trackArtistNames?.join(', ') ?? 'Unknown Artist',
           album: metadata.albumName ?? 'Unknown Album',

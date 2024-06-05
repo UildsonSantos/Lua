@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class Song extends Equatable {
-  final String id;
+  final int? id;
   final String title;
   final String artist;
   final String album;
@@ -9,7 +9,7 @@ class Song extends Equatable {
   final String filePath;
 
   const Song({
-    required this.id,
+    this.id,
     required this.title,
     required this.artist,
     required this.album,
@@ -20,7 +20,7 @@ class Song extends Equatable {
   @override
   List<Object> get props {
     return [
-      id,
+      id!,
       title,
       artist,
       album,
