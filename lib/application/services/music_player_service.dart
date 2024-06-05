@@ -1,15 +1,24 @@
+import 'package:just_audio/just_audio.dart';
 import 'package:lua/domain/entities/entities.dart';
 
 class MusicPlayerService {
-  void play(Song song) {
-    //TODO: Lógica para iniciar a reprodução da música
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  Future<void> play(Song song) async {
+    try {
+      await _audioPlayer.setFilePath(song.filePath);
+      _audioPlayer.play();
+    } catch (e) {
+      // Handle error
+      print('Error playing song: $e');
+    }
   }
 
   void pause() {
-    //TODO: Lógica para pausar a música
+    _audioPlayer.pause();
   }
 
   void stop() {
-    //TODO: Lógica para parar a música
+    _audioPlayer.stop();
   }
 }
