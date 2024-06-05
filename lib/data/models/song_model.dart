@@ -9,4 +9,26 @@ class SongModel extends Song {
     required super.duration,
     required super.filePath,
   });
+
+  factory SongModel.fromSong(Song song) {
+    return SongModel(
+      id: song.id,
+      title: song.title,
+      artist: song.artist,
+      album: song.album,
+      duration: song.duration,
+      filePath: song.filePath,
+    );
+  }
+
+  Song toSong() {
+    return Song(
+      id: id,
+      title: title,
+      artist: artist,
+      album: album,
+      duration: duration,
+      filePath: filePath,
+    );
+  }
 }
