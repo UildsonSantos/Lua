@@ -1,5 +1,7 @@
+import 'package:dartz/dartz.dart';
+import 'package:lua/core/error/error.dart';
 import 'package:lua/domain/entities/entities.dart';
 
 abstract class SongRepository {
-  Future<List<Song>> getAllSongs();
+  Future<Either<Failure, List<Song>>> getAllSongs();
 }
