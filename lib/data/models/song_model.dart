@@ -21,6 +21,17 @@ class SongModel extends Song {
     );
   }
 
+  factory SongModel.fromMap(Map<String, dynamic> map) {
+    return SongModel(
+      id: map['id'],
+      title: map['title'],
+      artist: map['artist'],
+      album: map['album'],
+      duration: map['duration'],
+      filePath: map['filePath'],
+    );
+  }
+
   Song toSong() {
     return Song(
       id: id,
@@ -30,5 +41,16 @@ class SongModel extends Song {
       duration: duration,
       filePath: filePath,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'artist': artist,
+      'album': album,
+      'duration': duration,
+      'filePath': filePath,
+    };
   }
 }

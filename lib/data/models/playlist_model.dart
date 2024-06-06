@@ -8,7 +8,38 @@ class PlaylistModel extends Playlist {
     required super.songs,
   });
 
-   PlaylistModel copyWith({
+  factory PlaylistModel.fromMap(Map<String, dynamic> map) {
+    return PlaylistModel(
+      id: map['id'],
+      name: map['name'],
+      songs: const [], // Músicas serão adicionadas depois ao consultar o banco de dados
+    );
+  }
+
+  factory PlaylistModel.fromPlaylist(Playlist playlist) {
+    return PlaylistModel(
+      id: playlist.id,
+      name: playlist.name,
+      songs: playlist.songs.map((song) => SongModel.fromSong(song)).toList(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
+
+  Playlist toPlaylist() {
+    return Playlist(
+      id: id,
+      name: name,
+      songs: songs.map((songModel) => songModel).toList(),
+    );
+  }
+
+  PlaylistModel copyWith({
     int? id,
     String? name,
     List<SongModel>? songs,
