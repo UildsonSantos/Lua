@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:lua/core/error/error.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
@@ -6,7 +8,7 @@ class CreatePlaylist {
 
   CreatePlaylist(this.repository);
 
-  Future<void> call(Playlist playlist) async {
+  Future<Either<Failure, void>> call(Playlist playlist) async {
     return await repository.createPlaylist(playlist);
   }
 }
