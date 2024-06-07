@@ -28,3 +28,12 @@ final class PlaylistError extends PlaylistState {
   @override
   List<Object> get props => [message];
 }
+
+final class PlaylistSuccess extends PlaylistState {
+  final String message;
+
+  const PlaylistSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

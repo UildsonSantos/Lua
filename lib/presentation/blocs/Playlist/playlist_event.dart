@@ -35,3 +35,17 @@ final class DeletePlaylistEvent extends PlaylistEvent {
   @override
   List<Object> get props => [playlistId];
 }
+
+final class AddSongToPlaylistEvent extends PlaylistEvent {
+  final PlaylistModel playlist;
+  final SongModel song;
+
+  const AddSongToPlaylistEvent(this.playlist, this.song);
+}
+
+final class RemoveSongFromPlaylistEvent extends PlaylistEvent {
+  final PlaylistModel playlist;
+  final SongModel song;
+
+  const RemoveSongFromPlaylistEvent(this.playlist, this.song);
+}

@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:lua/application/services/services.dart';
+import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/usecases/usecases.dart';
 
@@ -11,17 +13,21 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
   final CreatePlaylist createPlaylist;
   final UpdatePlaylist updatePlaylist;
   final RemovePlaylist removePlaylist;
+  final PlaylistService playlistService;
 
   PlaylistBloc({
     required this.createPlaylist,
     required this.getAllPlaylists,
     required this.updatePlaylist,
     required this.removePlaylist,
+    required this.playlistService,
   }) : super(PlaylistInitial()) {
     on<LoadPlaylistsEvent>(_onLoadPlaylists);
     on<AddPlaylistEvent>(_onAddPlaylist);
     on<UpdatePlaylistEvent>(_onUpdatePlaylist);
     on<DeletePlaylistEvent>(_onDeletePlaylist);
+    on<AddSongToPlaylistEvent>(_onAddSongToPlaylist);
+    on<RemoveSongFromPlaylistEvent>(_onRemoveSongFromPlaylist);
   }
 
   void _onLoadPlaylists(
@@ -60,5 +66,27 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       (failure) => emit(const PlaylistError('Failed to delete playlist')),
       (_) => add(LoadPlaylistsEvent()),
     );
+  }
+
+  void _onAddSongToPlaylist(
+      AddSongToPlaylistEvent event, Emitter<PlaylistState> emit) async {
+    try {
+      await playlistService.addSongToPlaylist(event.playlist, event.song);
+      emit(const PlaylistSuccess('Song added successfully'));
+    } catch (e) {
+      emit(PlaylistError('Failed to add song: $e'));
+    }
+  }
+
+  void _onRemoveSongFromPlaylist(
+    RemoveSongFromPlaylistEvent event,
+    Emitter<PlaylistState> emit,
+  ) async {
+    try {
+      await playlistService.removeSongFromPlaylist(event.playlist, event.song);
+      emit(const PlaylistSuccess('Song removed successfully'));
+    } catch (e) {
+      emit(PlaylistError('Failed to remove song: $e'));
+    }
   }
 }
