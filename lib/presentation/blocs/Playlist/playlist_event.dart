@@ -18,11 +18,20 @@ final class AddPlaylistEvent extends PlaylistEvent {
   List<Object> get props => [playlist];
 }
 
-class UpdatePlaylistEvent extends PlaylistEvent {
+final class UpdatePlaylistEvent extends PlaylistEvent {
   final Playlist playlist;
 
   const UpdatePlaylistEvent(this.playlist);
 
   @override
   List<Object> get props => [playlist];
+}
+
+final class DeletePlaylistEvent extends PlaylistEvent {
+  final int playlistId;
+
+  const DeletePlaylistEvent(this.playlistId);
+
+  @override
+  List<Object> get props => [playlistId];
 }
