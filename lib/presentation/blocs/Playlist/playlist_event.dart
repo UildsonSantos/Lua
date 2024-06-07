@@ -7,12 +7,21 @@ sealed class PlaylistEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class LoadPlaylists extends PlaylistEvent {}
+final class LoadPlaylistsEvent extends PlaylistEvent {}
 
-final class AddPlaylist extends PlaylistEvent {
+final class AddPlaylistEvent extends PlaylistEvent {
   final Playlist playlist;
 
-  const AddPlaylist(this.playlist);
+  const AddPlaylistEvent(this.playlist);
+
+  @override
+  List<Object> get props => [playlist];
+}
+
+class UpdatePlaylistEvent extends PlaylistEvent {
+  final Playlist playlist;
+
+  const UpdatePlaylistEvent(this.playlist);
 
   @override
   List<Object> get props => [playlist];
