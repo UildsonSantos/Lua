@@ -28,6 +28,8 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
     on<DeletePlaylistEvent>(_onDeletePlaylist);
     on<AddSongToPlaylistEvent>(_onAddSongToPlaylist);
     on<RemoveSongFromPlaylistEvent>(_onRemoveSongFromPlaylist);
+    on<RenamePlaylistEvent>(_onRenamePlaylist);
+    on<ReorderPlaylistEvent>(_onReorderPlaylist);
   }
 
   void _onLoadPlaylists(
@@ -87,6 +89,30 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       emit(const PlaylistSuccess('Song removed successfully'));
     } catch (e) {
       emit(PlaylistError('Failed to remove song: $e'));
+    }
+  }
+
+  void _onRenamePlaylist(
+      RenamePlaylistEvent event, Emitter<PlaylistState> emit) async {
+    try {
+      await playlistService.renamePlaylist(event.playlist, event.newName);
+      emit(const PlaylistSuccess('Playlist successfully renamed'));
+    } catch (e) {
+      emit(PlaylistError('Failed to rename Playlist: $e'));
+    }
+  }
+
+  void _onReorderPlaylist(
+      ReorderPlaylistEvent event, Emitter<PlaylistState> emit) async {
+    try {
+      await playlistService.reorderPlaylist(
+        event.playlist,
+        event.oldIndex,
+        event.newIndex,
+      );
+      emit(const PlaylistSuccess('Successfully reordered playlist'));
+    } catch (e) {
+      emit(PlaylistError('Failed to reorder playlist: $e'));
     }
   }
 }

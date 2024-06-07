@@ -49,3 +49,18 @@ final class RemoveSongFromPlaylistEvent extends PlaylistEvent {
 
   const RemoveSongFromPlaylistEvent(this.playlist, this.song);
 }
+
+final class RenamePlaylistEvent extends PlaylistEvent {
+  final PlaylistModel playlist;
+  final String newName;
+
+  const RenamePlaylistEvent(this.playlist, this.newName);
+}
+
+final class ReorderPlaylistEvent extends PlaylistEvent {
+  final PlaylistModel playlist;
+  final int oldIndex;
+  final int newIndex;
+
+  const ReorderPlaylistEvent(this.playlist, this.oldIndex, this.newIndex);
+}
