@@ -28,3 +28,16 @@ final class SongError extends SongState {
   @override
   List<Object> get props => [message];
 }
+
+class SongPlaying extends SongState {
+  final Song song;
+
+  const SongPlaying(this.song);
+
+  @override
+  List<Object> get props => [song];
+}
+
+class SongPaused extends SongState {}
+
+class SongStopped extends SongState {}
