@@ -10,20 +10,19 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final String _directoryPath = '/storage/emulated/0/Music';
-  late List<FileSystemEntity> _dirAaudioFiles = [];
+  final String _rootDirectoryPath = '/storage/emulated/0/Music';
+  late List<FileSystemEntity> _currentDirectoryContents = [];
 
   @override
   void initState() {
     super.initState();
-    _loadAudioFiles();
+    _loadDirectoryContents(Directory(_rootDirectoryPath));
   }
 
-  Future<void> _loadAudioFiles() async {
-    final directory = Directory(_directoryPath);
-    List<FileSystemEntity> dirFiles = await listFilesAndDirectories(directory);
+  Future<void> _loadDirectoryContents(Directory directory) async {
+    List<FileSystemEntity> contents = await listFilesAndDirectories(directory);
     setState(() {
-      _dirAaudioFiles = dirFiles;
+      _currentDirectoryContents = contents;
     });
   }
 
@@ -35,11 +34,6 @@ class HomePageState extends State<HomePage> {
       await for (FileSystemEntity entity in directory.list()) {
         if (entity is File || entity is Directory) {
           entities.add(entity);
-          if (entity is Directory) {
-            List<FileSystemEntity> subDirectoryEntities =
-                await listFilesAndDirectories(entity);
-            entities.addAll(subDirectoryEntities);
-          }
         }
       }
     }
@@ -47,12 +41,17 @@ class HomePageState extends State<HomePage> {
     return entities;
   }
 
-  void _handleFileSelection(FileSystemEntity file) {
-    //TODO: Implemente aqui o que acontece quando um arquivo de áudio é selecionado
-    if (kDebugMode) {
-      print('Arquivo de áudio selecionado: ${file.path}');
+  void _handleFileSelection(FileSystemEntity fileOrDirectory) {
+    if (fileOrDirectory is File) {
+      // Implemente aqui o que acontece quando um arquivo de áudio é selecionado
+      if (kDebugMode) {
+        print('Arquivo de áudio selecionado: ${fileOrDirectory.path}');
+      }
+      // Adicione o arquivo de áudio ao playback ou faça qualquer outra ação necessária
+    } else if (fileOrDirectory is Directory) {
+      // Se o item selecionado for um diretório, carregue os arquivos e diretórios dentro dele
+      _loadDirectoryContents(fileOrDirectory);
     }
-    //TODO: Adicione o arquivo de áudio ao playback ou faça qualquer outra ação necessária
   }
 
   @override
@@ -61,15 +60,16 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Lista de Músicas'),
       ),
-      body: _dirAaudioFiles != null && _dirAaudioFiles.isNotEmpty
+      body: _currentDirectoryContents != null &&
+              _currentDirectoryContents.isNotEmpty
           ? ListView.builder(
-              itemCount: _dirAaudioFiles.length,
+              itemCount: _currentDirectoryContents.length,
               itemBuilder: (context, index) {
-                FileSystemEntity file = _dirAaudioFiles[index];
+                FileSystemEntity item = _currentDirectoryContents[index];
                 return ListTile(
-                  title: Text(file.path.split('/').last),
+                  title: Text(item.path.split('/').last),
                   onTap: () {
-                    _handleFileSelection(file);
+                    _handleFileSelection(item);
                   },
                   onLongPress: () {
                     // Implemente o que acontece quando um arquivo é selecionado com longo pressionar
@@ -81,11 +81,10 @@ class HomePageState extends State<HomePage> {
           : Column(
               children: [
                 Center(
-                  child: _dirAaudioFiles != null ?
-                       const CircularProgressIndicator() // Show CircularProgressIndicator if _dirAaudioFiles is null
+                  child: _currentDirectoryContents == null
+                      ? const CircularProgressIndicator()
                       : const Text('Nenhum arquivo de áudio encontrado'),
                 ),
-                Text(_dirAaudioFiles.toString())
               ],
             ),
     );
