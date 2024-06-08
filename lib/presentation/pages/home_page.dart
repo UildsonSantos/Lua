@@ -11,7 +11,8 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final String _rootDirectoryPath = '/storage/emulated/0/Music';
-  late List<FileSystemEntity> _currentDirectoryContents = [];
+  late List<FileSystemEntity> _currentDirectoryContents;
+  final List<Directory> _directoryStack = [];
 
   @override
   void initState() {
@@ -43,14 +44,20 @@ class HomePageState extends State<HomePage> {
 
   void _handleFileSelection(FileSystemEntity fileOrDirectory) {
     if (fileOrDirectory is File) {
-      // Implemente aqui o que acontece quando um arquivo de áudio é selecionado
+      //TODO: Implemente aqui o que acontece quando um arquivo de áudio é selecionado
       if (kDebugMode) {
         print('Arquivo de áudio selecionado: ${fileOrDirectory.path}');
       }
-      // Adicione o arquivo de áudio ao playback ou faça qualquer outra ação necessária
     } else if (fileOrDirectory is Directory) {
-      // Se o item selecionado for um diretório, carregue os arquivos e diretórios dentro dele
+      _directoryStack.add(Directory(_rootDirectoryPath));
       _loadDirectoryContents(fileOrDirectory);
+    }
+  }
+
+  void _navigateToPreviousDirectory() {
+    if (_directoryStack.isNotEmpty) {
+      Directory previousDirectory = _directoryStack.removeLast();
+      _loadDirectoryContents(previousDirectory);
     }
   }
 
@@ -59,6 +66,12 @@ class HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Músicas'),
+        actions: [
+          ElevatedButton(
+            onPressed: _navigateToPreviousDirectory,
+            child: const Text('Voltar'),
+          )
+        ],
       ),
       body: _currentDirectoryContents != null &&
               _currentDirectoryContents.isNotEmpty
@@ -72,20 +85,16 @@ class HomePageState extends State<HomePage> {
                     _handleFileSelection(item);
                   },
                   onLongPress: () {
-                    // Implemente o que acontece quando um arquivo é selecionado com longo pressionar
-                    // Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
+                    //TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
+                    //TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
                   },
                 );
               },
             )
-          : Column(
-              children: [
-                Center(
-                  child: _currentDirectoryContents == null
-                      ? const CircularProgressIndicator()
-                      : const Text('Nenhum arquivo de áudio encontrado'),
-                ),
-              ],
+          : Center(
+              child: _currentDirectoryContents == null
+                  ? const CircularProgressIndicator()
+                  : const Text('Nenhum arquivo de áudio encontrado'),
             ),
     );
   }
