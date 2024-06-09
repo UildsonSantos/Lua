@@ -55,6 +55,14 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    if (_directoryStack.isNotEmpty) {
+      _navigateToPreviousDirectory();
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+
   void _navigateToPreviousDirectory() {
     if (_directoryStack.length > 1) {
       setState(() {
@@ -77,56 +85,59 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (int i = 0; i < _directoryNames.length; i++)
-                GestureDetector(
-                  onTap: () => _navigateToDirectory(i),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _directoryNames[i],
-                          style: const TextStyle(fontSize: 15.0),
-                        ),
-                        if (i < _directoryNames.length - 1)
-                          const Icon(Icons.chevron_right, size: 24.0),
-                      ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (int i = 0; i < _directoryNames.length; i++)
+                  GestureDetector(
+                    onTap: () => _navigateToDirectory(i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _directoryNames[i],
+                            style: const TextStyle(fontSize: 15.0),
+                          ),
+                          if (i < _directoryNames.length - 1)
+                            const Icon(Icons.chevron_right, size: 24.0),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
+        body: _currentDirectoryContents.isNotEmpty
+            ? ListView.builder(
+                itemCount: _currentDirectoryContents.length,
+                itemBuilder: (context, index) {
+                  FileSystemEntity item = _currentDirectoryContents[index];
+                  return ListTile(
+                    title: Text(item.path.split('/').last),
+                    onTap: () {
+                      _handleFileSelection(item);
+                    },
+                    onLongPress: () {
+                      // TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
+                      // TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
+                    },
+                  );
+                },
+              )
+            : Center(
+                child: _currentDirectoryContents == null
+                    ? const CircularProgressIndicator()
+                    : const Text('Nenhum arquivo de áudio encontrado'),
+              ),
       ),
-      body: _currentDirectoryContents.isNotEmpty
-          ? ListView.builder(
-              itemCount: _currentDirectoryContents.length,
-              itemBuilder: (context, index) {
-                FileSystemEntity item = _currentDirectoryContents[index];
-                return ListTile(
-                  title: Text(item.path.split('/').last),
-                  onTap: () {
-                    _handleFileSelection(item);
-                  },
-                  onLongPress: () {
-                    // TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
-                    // TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
-                  },
-                );
-              },
-            )
-          : Center(
-              child: _currentDirectoryContents == null
-                  ? const CircularProgressIndicator()
-                  : const Text('Nenhum arquivo de áudio encontrado'),
-            ),
     );
   }
 }
