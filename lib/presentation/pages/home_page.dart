@@ -55,12 +55,14 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    if (_directoryStack.isNotEmpty) {
+  void _onPopInvoked(bool popWasInvoked) {
+    if (!popWasInvoked && _directoryStack.isNotEmpty) {
       _navigateToPreviousDirectory();
-      return Future.value(false);
+    } else {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).maybePop();
+      }
     }
-    return Future.value(true);
   }
 
   void _navigateToPreviousDirectory() {
@@ -85,8 +87,11 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      onPopInvoked: (didPop) => _onPopInvoked(didPop),
+      canPop:
+          false, // Impede que o botão de voltar do sistema faça o pop da tela
+
       child: Scaffold(
         appBar: AppBar(
           title: SingleChildScrollView(
