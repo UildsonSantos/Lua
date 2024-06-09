@@ -10,14 +10,14 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final String _rootDirectoryPath = '/storage/emulated/0/Music';
-  late List<FileSystemEntity> _currentDirectoryContents;
-  final List<Directory> _directoryStack = [];
+  late List<FileSystemEntity> _currentDirectoryContents = [];
+  final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
+  final List<String> _directoryNames = ['Armazenamento interno'];
 
   @override
   void initState() {
     super.initState();
-    _loadDirectoryContents(Directory(_rootDirectoryPath));
+    _loadDirectoryContents(_directoryStack.last);
   }
 
   Future<void> _loadDirectoryContents(Directory directory) async {
@@ -30,7 +30,6 @@ class HomePageState extends State<HomePage> {
   Future<List<FileSystemEntity>> listFilesAndDirectories(
       Directory directory) async {
     List<FileSystemEntity> entities = [];
-
     if (directory.existsSync()) {
       await for (FileSystemEntity entity in directory.list()) {
         if (entity is File || entity is Directory) {
@@ -38,7 +37,6 @@ class HomePageState extends State<HomePage> {
         }
       }
     }
-
     return entities;
   }
 
@@ -49,15 +47,31 @@ class HomePageState extends State<HomePage> {
         print('Arquivo de áudio selecionado: ${fileOrDirectory.path}');
       }
     } else if (fileOrDirectory is Directory) {
-      _directoryStack.add(Directory(_rootDirectoryPath));
+      setState(() {
+        _directoryStack.add(fileOrDirectory);
+        _directoryNames.add(fileOrDirectory.path.split('/').last);
+      });
       _loadDirectoryContents(fileOrDirectory);
     }
   }
 
   void _navigateToPreviousDirectory() {
-    if (_directoryStack.isNotEmpty) {
-      Directory previousDirectory = _directoryStack.removeLast();
-      _loadDirectoryContents(previousDirectory);
+    if (_directoryStack.length > 1) {
+      setState(() {
+        _directoryStack.removeLast();
+        _directoryNames.removeLast();
+      });
+      _loadDirectoryContents(_directoryStack.last);
+    }
+  }
+
+  void _navigateToDirectory(int index) {
+    if (index < _directoryStack.length) {
+      setState(() {
+        _directoryStack.removeRange(index + 1, _directoryStack.length);
+        _directoryNames.removeRange(index + 1, _directoryNames.length);
+      });
+      _loadDirectoryContents(_directoryStack[index]);
     }
   }
 
@@ -65,7 +79,31 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Músicas'),
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < _directoryNames.length; i++)
+                GestureDetector(
+                  onTap: () => _navigateToDirectory(i),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _directoryNames[i],
+                          style: const TextStyle(fontSize: 15.0),
+                        ),
+                        if (i < _directoryNames.length - 1)
+                          const Icon(Icons.chevron_right, size: 24.0),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
         actions: [
           ElevatedButton(
             onPressed: _navigateToPreviousDirectory,
@@ -73,8 +111,7 @@ class HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: _currentDirectoryContents != null &&
-              _currentDirectoryContents.isNotEmpty
+      body: _currentDirectoryContents.isNotEmpty
           ? ListView.builder(
               itemCount: _currentDirectoryContents.length,
               itemBuilder: (context, index) {
@@ -85,8 +122,8 @@ class HomePageState extends State<HomePage> {
                     _handleFileSelection(item);
                   },
                   onLongPress: () {
-                    //TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
-                    //TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
+                    // TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
+                    // TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
                   },
                 );
               },
