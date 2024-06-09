@@ -104,12 +104,6 @@ class HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        actions: [
-          ElevatedButton(
-            onPressed: _navigateToPreviousDirectory,
-            child: const Text('Voltar'),
-          )
-        ],
       ),
       body: _currentDirectoryContents.isNotEmpty
           ? ListView.builder(
