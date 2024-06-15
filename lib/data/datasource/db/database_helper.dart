@@ -18,7 +18,7 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'notes_app.db');
+    final path = join(databasePath, 'lua_app.db');
 
     return await openDatabase(
       path,
