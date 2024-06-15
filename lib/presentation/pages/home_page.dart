@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lua/core/utils/utils.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,7 +19,6 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _requestPermissionAndLoadContent();
-    
   }
 
   Future<void> _requestPermissionAndLoadContent() async {
@@ -28,7 +26,9 @@ class HomePageState extends State<HomePage> {
     if (hasPermission) {
       _loadDirectoryContents(_directoryStack.last);
     } else {
-      print('Permissão negada.');
+      if (kDebugMode) {
+        print('Permissão negada.');
+      }
       PermissionApp.permissionRequest();
     }
   }
@@ -150,18 +150,17 @@ class HomePageState extends State<HomePage> {
                 },
               )
             : Center(
-                child: _currentDirectoryContents == null
-                    ? const CircularProgressIndicator()
-                    : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Nenhum arquivo de áudio encontrado'),
-                          ElevatedButton(
-                            onPressed: () => _loadDirectoryContents(_directoryStack.last),
-                            child: const Icon(Icons.refresh_rounded),
-                          )
-                        ],
-                      ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Nenhum arquivo de áudio encontrado'),
+                    ElevatedButton(
+                      onPressed: () =>
+                          _loadDirectoryContents(_directoryStack.last),
+                      child: const Icon(Icons.refresh_rounded),
+                    )
+                  ],
+                ),
               ),
       ),
     );
