@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lua/domain/entities/song.dart';
+import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
 
 class PlayerWidget extends StatelessWidget {
-  final Song song;
+  final Playlist playlist;
 
-  const PlayerWidget({super.key, required this.song});
+  const PlayerWidget({super.key, required this.playlist});
 
   @override
   Widget build(BuildContext context) {
@@ -14,31 +14,41 @@ class PlayerWidget extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(song.title),
+            title: Text(playlist.name),
           ),
           body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Playing: ${song.title}'),
-              IconButton(
-                icon: Icon(
-                  state is SongPlaying ? Icons.pause : Icons.play_arrow,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: playlist.songs.length,
+                  itemBuilder: (context, index) {
+                    final song = playlist.songs[index];
+                    return ListTile(
+                      title: Text(song.title),
+                      subtitle: Text(song.artist),
+                    );
+                  },
                 ),
-                onPressed: () {
-                  if (state is SongPlaying) {
-                    context.read<SongBloc>().add(PauseSongEvent());
-                  } else {
-                    context.read<SongBloc>().add(PlaySongEvent(song));
-                  }
-                },
               ),
-              IconButton(
-                icon: const Icon(Icons.stop),
-                onPressed: () {
-                  context.read<SongBloc>().add(StopSongEvent());
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      state is SongPlaying ? Icons.pause : Icons.play_arrow,
+                    ),
+                    onPressed: () {
+                      if (state is SongPlaying) {
+                        context.read<SongBloc>().add(PauseSongEvent());
+                      } else if (playlist.songs.isNotEmpty) {
+                        context
+                            .read<SongBloc>()
+                            .add(PlaySongEvent(playlist.songs[0]));
+                      }
+                    },
+                  ),
+                ],
               ),
-              // Adicione aqui outros botões e indicadores de progresso
             ],
           ),
         );
