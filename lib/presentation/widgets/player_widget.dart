@@ -49,6 +49,13 @@ class PlayerWidgetState extends State<PlayerWidget> {
     }
   }
 
+  String _formatDuration(int durationInMillis) {
+    final duration = Duration(milliseconds: durationInMillis);
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SongBloc, SongState>(
@@ -66,7 +73,7 @@ class PlayerWidgetState extends State<PlayerWidget> {
                     final song = widget.playlist.songs[index];
                     return ListTile(
                       title: Text(song.title),
-                      subtitle: Text(song.artist),
+                      subtitle: Text(_formatDuration(song.duration)),
                     );
                   },
                 ),
