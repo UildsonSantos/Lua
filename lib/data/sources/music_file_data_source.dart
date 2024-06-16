@@ -33,4 +33,19 @@ class MusicFileDataSource {
       throw Exception('Directory not found');
     }
   }
+
+  Future<SongModel> getSingleLocalSong(String source) async {
+    File file = File(source);
+    final metadata = await MetadataRetriever.fromFile(File(file.path));
+
+    SongModel singleSong = SongModel(
+      id: null, // ID será gerado pelo banco de dados
+      title: metadata.trackName ?? file.uri.pathSegments.last,
+      artist: metadata.trackArtistNames?.join(', ') ?? 'Unknown Artist',
+      album: metadata.albumName ?? 'Unknown Album',
+      duration: metadata.trackDuration ?? 0,
+      filePath: file.path,
+    );
+    return singleSong;
+  }
 }
