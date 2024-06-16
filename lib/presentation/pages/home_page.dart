@@ -1,9 +1,14 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lua/core/utils/utils.dart';
+import 'package:lua/data/models/models.dart';
+import 'package:lua/data/sources/music_file_data_source.dart';
 import 'package:lua/domain/repositories/repositories.dart';
+import 'package:lua/presentation/blocs/blocs.dart';
+import 'package:lua/presentation/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +22,7 @@ class HomePageState extends State<HomePage> {
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
   final List<String> _directoryNames = ['Armazenamento interno'];
   final FileRepository _fileRepository = GetIt.instance<FileRepository>();
+  final MusicFileDataSource _musicFileDataSource = MusicFileDataSource();
   @override
   void initState() {
     super.initState();
@@ -43,12 +49,28 @@ class HomePageState extends State<HomePage> {
     });
   }
 
- 
-  void _handleFileSelection(FileSystemEntity fileOrDirectory) {
+  void _handleFileSelection(FileSystemEntity fileOrDirectory) async {
     if (fileOrDirectory is File) {
-      //TODO: Implemente aqui o que acontece quando um arquivo de áudio é selecionado
-      if (kDebugMode) {
-        print('Arquivo de áudio selecionado: ${fileOrDirectory.path}');
+      if (fileOrDirectory.path.endsWith('.mp3') ||
+          fileOrDirectory.path.endsWith('.mp4')) {
+        SongModel song =
+            await _musicFileDataSource.getSingleLocalSong(fileOrDirectory.path);
+
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => BlocProvider.value(
+            value: context.read<SongBloc>(),
+            child: PlayerWidget(song: song),
+          ),
+        ));
+
+        // Inicie a reprodução da música
+        context.read<SongBloc>().add(PlaySongEvent(song));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Arquivo não suportado: ${fileOrDirectory.path.split('/').last}')),
+        );
       }
     } else if (fileOrDirectory is Directory) {
       setState(() {
