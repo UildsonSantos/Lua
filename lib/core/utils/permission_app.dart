@@ -13,7 +13,7 @@ class PermissionApp {
 
       return status[Permission.storage]?.isGranted ?? false;
     } else {
-      return true;
+      return status.isGranted;
     }
   }
 }
