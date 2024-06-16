@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lua/core/utils/utils.dart';
+import 'package:lua/domain/repositories/repositories.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +16,7 @@ class HomePageState extends State<HomePage> {
   late List<FileSystemEntity> _currentDirectoryContents = [];
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
   final List<String> _directoryNames = ['Armazenamento interno'];
-
+  final FileRepository _fileRepository = GetIt.instance<FileRepository>();
   @override
   void initState() {
     super.initState();
@@ -34,24 +36,14 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadDirectoryContents(Directory directory) async {
-    List<FileSystemEntity> contents = await listFilesAndDirectories(directory);
+    List<FileSystemEntity> contents =
+        await _fileRepository.listFilesAndDirectories(directory);
     setState(() {
       _currentDirectoryContents = contents;
     });
   }
 
-  Future<List<FileSystemEntity>> listFilesAndDirectories(
-      Directory directory) async {
-    List<FileSystemEntity> entities = [];
-    if (directory.existsSync()) {
-      await for (FileSystemEntity entity in directory.list()) {
-        entities.add(entity);
-      }
-    }
-
-    return entities;
-  }
-
+ 
   void _handleFileSelection(FileSystemEntity fileOrDirectory) {
     if (fileOrDirectory is File) {
       //TODO: Implemente aqui o que acontece quando um arquivo de áudio é selecionado
