@@ -25,9 +25,23 @@ class PlayerWidgetState extends State<PlayerWidget> {
   final MusicPlayerService _musicPlayerService =
       GetIt.instance<MusicPlayerService>();
 
+  Duration _currentPosition = Duration.zero;
+  Duration _totalDuration = Duration.zero;
+
   @override
   void initState() {
     super.initState();
+    _musicPlayerService.audioPlayer.positionStream.listen((position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    });
+
+    _musicPlayerService.audioPlayer.durationStream.listen((duration) {
+      setState(() {
+        _totalDuration = duration ?? Duration.zero;
+      });
+    });
 
     _musicPlayerService.audioPlayer.playerStateStream.listen((playerState) {
       if (playerState.processingState == ProcessingState.completed) {
@@ -68,6 +82,16 @@ class PlayerWidgetState extends State<PlayerWidget> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  void _seekToPosition(double seconds) {
+    _musicPlayerService.audioPlayer.seek(Duration(seconds: seconds.toInt()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SongBloc, SongState>(
@@ -88,6 +112,24 @@ class PlayerWidgetState extends State<PlayerWidget> {
                   );
                 },
               ),
+            ),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('  ${_formatDuration(_currentPosition)}'),
+                    Text('${_formatDuration(_totalDuration)}    '),
+                  ],
+                ),
+                Slider(
+                  value: _currentPosition.inSeconds.toDouble(),
+                  max: _totalDuration.inSeconds.toDouble(),
+                  onChanged: (value) {
+                    _seekToPosition(value);
+                  },
+                ),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
