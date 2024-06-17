@@ -21,3 +21,5 @@ final class PlaySongEvent extends SongEvent {
 final class PauseSongEvent extends SongEvent {}
 
 final class StopSongEvent extends SongEvent {}
+
+final class SongCompleteEvent extends SongEvent {}

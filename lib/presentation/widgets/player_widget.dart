@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:lua/application/services/services.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
 
@@ -19,14 +22,23 @@ class PlayerWidget extends StatefulWidget {
 
 class PlayerWidgetState extends State<PlayerWidget> {
   int currentIndex = 0;
+  final MusicPlayerService _musicPlayerService =
+      GetIt.instance<MusicPlayerService>();
 
   @override
   void initState() {
     super.initState();
-    currentIndex = widget.initialIndex;
-    context
-        .read<SongBloc>()
-        .add(PlaySongEvent(widget.playlist.songs[currentIndex]));
+
+    _musicPlayerService.audioPlayer.playerStateStream.listen((playerState) {
+      if (playerState.processingState == ProcessingState.completed) {
+        _onSongComplete();
+      }
+    });
+  }
+
+  void _onSongComplete() {
+    context.read<SongBloc>().add(SongCompleteEvent());
+    _playNextSong();
   }
 
   void _playSong(int index) {
@@ -49,7 +61,7 @@ class PlayerWidgetState extends State<PlayerWidget> {
     }
   }
 
-  String _formatDuration(int durationInMillis) {
+  String _formatDurationInMillis(int durationInMillis) {
     final duration = Duration(milliseconds: durationInMillis);
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
@@ -64,47 +76,44 @@ class PlayerWidgetState extends State<PlayerWidget> {
           appBar: AppBar(
             title: Text(widget.playlist.name),
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: widget.playlist.songs.length,
-                  itemBuilder: (context, index) {
-                    final song = widget.playlist.songs[index];
-                    return ListTile(
-                      title: Text(song.title),
-                      subtitle: Text(_formatDuration(song.duration)),
-                    );
+          body: Column(children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.playlist.songs.length,
+                itemBuilder: (context, index) {
+                  final song = widget.playlist.songs[index];
+                  return ListTile(
+                    title: Text(song.title),
+                    subtitle: Text(_formatDurationInMillis(song.duration)),
+                  );
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.skip_previous),
+                  onPressed: _playPreviousSong,
+                ),
+                IconButton(
+                  icon: Icon(
+                      state is SongPlaying ? Icons.pause : Icons.play_arrow),
+                  onPressed: () {
+                    if (state is SongPlaying) {
+                      context.read<SongBloc>().add(PauseSongEvent());
+                    } else if (widget.playlist.songs.isNotEmpty) {
+                      _playSong(currentIndex);
+                    }
                   },
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous),
-                    onPressed: _playPreviousSong,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      state is SongPlaying ? Icons.pause : Icons.play_arrow,
-                    ),
-                    onPressed: () {
-                      if (state is SongPlaying) {
-                        context.read<SongBloc>().add(PauseSongEvent());
-                      } else if (widget.playlist.songs.isNotEmpty) {
-                        _playSong(currentIndex);
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next),
-                    onPressed: _playNextSong,
-                  ),
-                ],
-              ),
-            ],
-          ),
+                IconButton(
+                  icon: const Icon(Icons.skip_next),
+                  onPressed: _playNextSong,
+                ),
+              ],
+            ),
+          ]),
         );
       },
     );

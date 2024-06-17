@@ -29,7 +29,7 @@ final class SongError extends SongState {
   List<Object> get props => [message];
 }
 
-class SongPlaying extends SongState {
+final class SongPlaying extends SongState {
   final Song song;
 
   const SongPlaying(this.song);
@@ -38,6 +38,8 @@ class SongPlaying extends SongState {
   List<Object> get props => [song];
 }
 
-class SongPaused extends SongState {}
+final class SongPaused extends SongState {}
 
-class SongStopped extends SongState {}
+final class SongStopped extends SongState {}
+
+final class SongCompleted extends SongState {} 

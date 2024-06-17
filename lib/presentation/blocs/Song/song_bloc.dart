@@ -22,6 +22,7 @@ class SongBloc extends Bloc<SongEvent, SongState> {
     on<PlaySongEvent>(_onPlaySong);
     on<PauseSongEvent>(_onPauseSong);
     on<StopSongEvent>(_onStopSong);
+    on<SongCompleteEvent>(_onSongComplete);
   }
 
   void _onLoadSongs(LoadSongsEvent event, Emitter<SongState> emit) async {
@@ -46,5 +47,9 @@ class SongBloc extends Bloc<SongEvent, SongState> {
   void _onStopSong(StopSongEvent event, Emitter<SongState> emit) {
     stopSong();
     emit(SongStopped());
+  }
+
+   void _onSongComplete(SongCompleteEvent event, Emitter<SongState> emit) {
+    emit(SongCompleted());
   }
 }
