@@ -22,8 +22,8 @@ class HomePageState extends State<HomePage> {
   final List<String> _directoryNames = ['Armazenamento interno'];
   final FileRepository _fileRepository = GetIt.instance<FileRepository>();
   final MusicFileDataSource _musicFileDataSource = MusicFileDataSource();
-  final List<SongModel> _selectedSongs = [];
-
+  final Set<FileSystemEntity> _selectedSongs = {};
+  final List<SongModel> _addedSongs = [];
 
   @override
   void initState() {
@@ -57,10 +57,10 @@ class HomePageState extends State<HomePage> {
           fileOrDirectory.path.endsWith('.mp4')) {
         SongModel song =
             await _musicFileDataSource.getSingleLocalSong(fileOrDirectory.path);
+
         setState(() {
-          if (!_selectedSongs.any((s) => s.filePath == song.filePath)) {
-            _selectedSongs.add(song);
-          }
+          _selectedSongs.add(fileOrDirectory);
+          _addedSongs.add(song);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -150,8 +150,11 @@ class HomePageState extends State<HomePage> {
                   Playlist playlist = Playlist(
                     id: 1, // Defina um ID adequado, se necessário
                     name: 'Selected Songs',
-                    songs: _selectedSongs,
+                    songs: _addedSongs,
                   );
+                  setState(() {
+                    _selectedSongs.clear();
+                  });
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -171,36 +174,31 @@ class HomePageState extends State<HomePage> {
         ),
         body: _currentDirectoryContents.isNotEmpty
             ? ListView.builder(
-              itemCount: _currentDirectoryContents.length,
-              itemBuilder: (context, index) {
-                final fileOrDirectory = _currentDirectoryContents[index];
-                return ListTile(
-                  title: Text(fileOrDirectory.path.split('/').last),
-                  onTap: () => _handleFileSelection(fileOrDirectory),
-                  trailing: Checkbox(
-                    value: fileOrDirectory is File &&
-                        _selectedSongs.any((song) =>
-                            song.filePath == fileOrDirectory.path),
-                    onChanged: (bool? value) {
-                      if (fileOrDirectory is File) {
-                        setState(() {
-                          if (value == true) {
-                            _handleFileSelection(fileOrDirectory);
+                itemCount: _currentDirectoryContents.length,
+                itemBuilder: (context, index) {
+                  final fileOrDirectory = _currentDirectoryContents[index];
+                  final isSelected = _selectedSongs.contains(fileOrDirectory);
+                  return InkWell(
+                    child: Container(
+                      color: isSelected
+                          ? Colors.deepPurpleAccent
+                          : Colors.transparent,
+                      child: ListTile(
+                        title: Text(fileOrDirectory.path.split('/').last),
+                        onTap: () {
+                          if (isSelected) {
+                            setState(() {
+                              _selectedSongs.remove(fileOrDirectory);
+                            });
                           } else {
-                            _selectedSongs.removeWhere((song) =>
-                                song.filePath == fileOrDirectory.path);
+                            _handleFileSelection(fileOrDirectory);
                           }
-                        });
-                      }
-                    },
-                  ),
-                  onLongPress: () {
-                    // TODO: Implemente o que acontece quando um arquivo é selecionado com longo pressionar
-                    // TODO: Isso pode incluir adicionar o arquivo ao playback ou selecionar o diretório
-                  },
-                );
-              },
-            )
+                        },
+                      ),
+                    ),
+                  );
+                },
+              )
             : Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
