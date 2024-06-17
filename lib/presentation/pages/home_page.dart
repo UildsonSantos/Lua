@@ -5,9 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lua/core/utils/utils.dart';
 import 'package:lua/data/models/models.dart';
 import 'package:lua/data/sources/music_file_data_source.dart';
-import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
-import 'package:lua/presentation/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -142,63 +140,89 @@ class HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.playlist_play),
-              onPressed: () {
-                if (_selectedSongs.isNotEmpty) {
-                  Playlist playlist = Playlist(
-                    id: 1, // Defina um ID adequado, se necessário
-                    name: 'Selected Songs',
-                    songs: _addedSongs,
-                  );
-                  setState(() {
-                    _selectedSongs.clear();
-                  });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlayerWidget(
-                        playlist: playlist,
-                      ),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nenhuma música selecionada')),
-                  );
-                }
-              },
-            ),
-          ],
         ),
         body: _currentDirectoryContents.isNotEmpty
-            ? ListView.builder(
-                itemCount: _currentDirectoryContents.length,
-                itemBuilder: (context, index) {
-                  final fileOrDirectory = _currentDirectoryContents[index];
-                  final isSelected = _selectedSongs.contains(fileOrDirectory);
-                  return InkWell(
-                    child: Container(
-                      color: isSelected
-                          ? Colors.deepPurpleAccent
-                          : Colors.transparent,
-                      child: ListTile(
-                        title: Text(fileOrDirectory.path.split('/').last),
-                        onTap: () {
-                          if (isSelected) {
-                            setState(() {
-                              _selectedSongs.remove(fileOrDirectory);
-                            });
-                          } else {
-                            _handleFileSelection(fileOrDirectory);
-                          }
-                        },
+            ? Stack(children: [
+                ListView.builder(
+                  itemCount: _currentDirectoryContents.length,
+                  itemBuilder: (context, index) {
+                    final fileOrDirectory = _currentDirectoryContents[index];
+                    final isSelected = _selectedSongs.contains(fileOrDirectory);
+                    return InkWell(
+                      child: Container(
+                        color: isSelected
+                            ? Colors.deepPurpleAccent
+                            : Colors.transparent,
+                        child: ListTile(
+                          title: Text(fileOrDirectory.path.split('/').last),
+                          onTap: () {
+                            if (isSelected) {
+                              setState(() {
+                                _selectedSongs.remove(fileOrDirectory);
+                              });
+                            } else {
+                              _handleFileSelection(fileOrDirectory);
+                            }
+                          },
+                        ),
                       ),
-                    ),
-                  );
-                },
-              )
+                    );
+                  },
+                ),
+
+                // DraggableScrollableSheet
+                DraggableScrollableSheet(
+                  initialChildSize: 0.9,
+                  minChildSize: 0.15,
+                  maxChildSize: 0.9,
+                  builder: (BuildContext context,
+                      ScrollController scrollController) {
+                    return Scaffold(
+                      backgroundColor: Colors.transparent,
+                      appBar: AppBar(
+                        backgroundColor: Colors.transparent,
+                        actions: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: IconButton(
+                              iconSize: 60,
+                              padding: const EdgeInsets.only(bottom: 200.0),
+                              color: Colors.purple,
+                              icon: const Icon(
+                                Icons.play_circle_rounded,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  // _addedSongs.addAll(null);
+                                  _selectedSongs.clear();
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      body: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.purple,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16.0),
+                            topRight: Radius.circular(16.0),
+                          ),
+                        ),
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount: _addedSongs.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ListTile(
+                              title: Text(_addedSongs[index].artist),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ])
             : Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
