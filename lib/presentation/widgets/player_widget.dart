@@ -48,6 +48,8 @@ class PlayerWidgetState extends State<PlayerWidget> {
         _onSongComplete();
       }
     });
+
+    _playSong(widget.initialIndex);
   }
 
   void _onSongComplete() {
@@ -75,13 +77,6 @@ class PlayerWidgetState extends State<PlayerWidget> {
     }
   }
 
-  String _formatDurationInMillis(int durationInMillis) {
-    final duration = Duration(milliseconds: durationInMillis);
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.toString().padLeft(2, '0');
     final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
@@ -100,62 +95,65 @@ class PlayerWidgetState extends State<PlayerWidget> {
           appBar: AppBar(
             title: Text(widget.playlist.name),
           ),
-          body: Column(children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.playlist.songs.length,
-                itemBuilder: (context, index) {
-                  final song = widget.playlist.songs[index];
-                  return ListTile(
-                    title: Text(song.title),
-                    subtitle: Text(_formatDurationInMillis(song.duration)),
-                  );
-                },
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: widget.playlist.songs.length,
+                  itemBuilder: (context, index) {
+                    final song = widget.playlist.songs[index];
+                    return ListTile(
+                      title: Text(song.title),
+                      subtitle: Text(_formatDuration(
+                          Duration(milliseconds: song.duration))),
+                    );
+                  },
+                ),
               ),
-            ),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('  ${_formatDuration(_currentPosition)}'),
-                    Text('${_formatDuration(_totalDuration)}    '),
-                  ],
-                ),
-                Slider(
-                  value: _currentPosition.inSeconds.toDouble(),
-                  max: _totalDuration.inSeconds.toDouble(),
-                  onChanged: (value) {
-                    _seekToPosition(value);
-                  },
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.skip_previous),
-                  onPressed: _playPreviousSong,
-                ),
-                IconButton(
-                  icon: Icon(
-                      state is SongPlaying ? Icons.pause : Icons.play_arrow),
-                  onPressed: () {
-                    if (state is SongPlaying) {
-                      context.read<SongBloc>().add(PauseSongEvent());
-                    } else if (widget.playlist.songs.isNotEmpty) {
-                      _playSong(currentIndex);
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.skip_next),
-                  onPressed: _playNextSong,
-                ),
-              ],
-            ),
-          ]),
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('  ${_formatDuration(_currentPosition)}'),
+                      Text('${_formatDuration(_totalDuration)}    '),
+                    ],
+                  ),
+                  Slider(
+                    value: _currentPosition.inSeconds.toDouble(),
+                    max: _totalDuration.inSeconds.toDouble(),
+                    onChanged: (value) {
+                      _seekToPosition(value);
+                    },
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.skip_previous),
+                    onPressed: _playPreviousSong,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                        state is SongPlaying ? Icons.pause : Icons.play_arrow),
+                    onPressed: () {
+                      if (state is SongPlaying) {
+                        context.read<SongBloc>().add(PauseSongEvent());
+                      } else if (widget.playlist.songs.isNotEmpty) {
+                        _playSong(currentIndex);
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.skip_next),
+                    onPressed: _playNextSong,
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
