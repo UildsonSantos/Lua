@@ -1,13 +1,13 @@
 import 'package:lua/data/datasource/db/database_helper.dart';
-import 'package:lua/data/models/models.dart';
+import 'package:lua/domain/entities/entities.dart';
 
 abstract class LocalDataSource {
-  Future<void> insertSong(SongModel song);
+  Future<void> insertSong(Song song);
   Future<void> deleteSong(int songId);
-  Future<void> insertPlaylist(PlaylistModel playlist);
-  Future<List<SongModel>> getAllSongs();
-  Future<List<PlaylistModel>> getAllPlaylists();
-  Future<void> updatePlaylist(PlaylistModel playlist);
+  Future<void> insertPlaylist(Playlist playlist);
+  Future<List<Song>> getAllSongs();
+  Future<List<Playlist>> getAllPlaylists();
+  Future<void> updatePlaylist(Playlist playlist);
   Future<void> deletePlaylist(int playlistId);
 }
 
@@ -21,20 +21,20 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<void> deleteSong(int songId) => _databaseHelper.deleteSong(songId);
 
   @override
-  Future<List<PlaylistModel>> getAllPlaylists() =>
+  Future<List<Playlist>> getAllPlaylists() =>
       _databaseHelper.getAllPlaylists();
 
   @override
-  Future<List<SongModel>> getAllSongs() => _databaseHelper.getAllSongs();
+  Future<List<Song>> getAllSongs() => _databaseHelper.getAllSongs();
 
   @override
-  Future<void> insertPlaylist(PlaylistModel playlist) =>
+  Future<void> insertPlaylist(Playlist playlist) =>
       _databaseHelper.insertPlaylist(playlist);
 
   @override
-  Future<void> insertSong(SongModel song) => _databaseHelper.insertSong(song);
+  Future<void> insertSong(Song song) => _databaseHelper.insertSong(song);
 
   @override
-  Future<void> updatePlaylist(PlaylistModel playlist) =>
+  Future<void> updatePlaylist(Playlist playlist) =>
       _databaseHelper.updatePlaylist(playlist);
 }
