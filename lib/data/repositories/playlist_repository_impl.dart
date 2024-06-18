@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:lua/core/error/error.dart';
 import 'package:lua/core/exceptions/exceptions.dart';
 import 'package:lua/data/datasource/datasource.dart';
-import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
@@ -14,8 +13,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   @override
   Future<Either<Failure, void>> createPlaylist(Playlist playlist) async {
     try {
-      await localDataSource
-          .insertPlaylist(PlaylistModel.fromPlaylist(playlist));
+      await localDataSource.insertPlaylist(playlist);
       return const Right(null);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure('Failed to create Playlist: ${e.message}'));
@@ -26,9 +24,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   Future<Either<Failure, List<Playlist>>> getAllPlaylists() async {
     try {
       final playlists = await localDataSource.getAllPlaylists();
-      return Right(playlists
-          .map((playlistModel) => playlistModel.toPlaylist())
-          .toList());
+      return Right(playlists);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure('Failed to get all Playlists: ${e.message}'));
     }
@@ -47,8 +43,7 @@ class PlaylistRepositoryImpl implements PlaylistRepository {
   @override
   Future<Either<Failure, void>> updatePlaylist(Playlist playlist) async {
     try {
-      await localDataSource
-          .updatePlaylist(PlaylistModel.fromPlaylist(playlist));
+      await localDataSource.updatePlaylist(playlist);
       return const Right(null);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure('Failed to update Playlist: ${e.message}'));

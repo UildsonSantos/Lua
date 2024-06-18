@@ -17,13 +17,12 @@ class SongRepositoryImpl implements SongRepository {
       // Primeiro, tenta obter as músicas do banco de dados local
       final localSongs = await localDataSource.getAllSongs();
       if (localSongs.isNotEmpty) {
-        return Right(
-            localSongs.map((songModel) => songModel.toSong()).toList());
+        return Right(localSongs);
       }
 
       // Se não houver músicas no banco de dados local, tenta obter do sistema de arquivos
       final fileSongs = await musicFileDataSource.getLocalSongs();
-      return Right(fileSongs.map((songModel) => songModel.toSong()).toList());
+      return Right(fileSongs);
     } catch (e) {
       return Left(DatabaseFailure('Failed to get local songs: $e'));
     }
