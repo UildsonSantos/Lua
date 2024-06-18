@@ -30,14 +30,6 @@ class PlayerWidgetState extends State<PlayerWidget> {
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
 
-  bool _isExpanded = false;
-
-  void _toggleExpand() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -97,6 +89,12 @@ class PlayerWidgetState extends State<PlayerWidget> {
     _musicPlayerService.audioPlayer.seek(Duration(seconds: seconds.toInt()));
   }
 
+  void _deleteSong(int index) {
+    setState(() {
+      widget.playlist.songs.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SongBloc, SongState>(
@@ -111,10 +109,24 @@ class PlayerWidgetState extends State<PlayerWidget> {
                   itemCount: widget.playlist.songs.length,
                   itemBuilder: (context, index) {
                     final song = widget.playlist.songs[index];
-                    return ListTile(
-                      title: Text(song.title),
-                      subtitle: Text(_formatDuration(
-                          Duration(milliseconds: song.duration))),
+                    return Dismissible(
+                      key: Key(song.id.toString()),
+                      direction: DismissDirection.startToEnd,
+                      background: Container(
+                        color: Colors.black54,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onDismissed: (direction) {
+                        _deleteSong(index);
+                      },
+                      child: ListTile(
+                        title: Text(song.title),
+                        subtitle: Text(_formatDuration(
+                            Duration(milliseconds: song.duration))),
+                        // Mais conteúdo do ListTile
+                      ),
                     );
                   },
                 ),
