@@ -90,9 +90,21 @@ class PlayerWidgetState extends State<PlayerWidget> {
   }
 
   void _deleteSong(int index) {
-    setState(() {
-      widget.playlist.songs.removeAt(index);
-    });
+    final removedSong = widget.playlist.songs.removeAt(index);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text('Music removed'),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          setState(() {
+            widget.playlist.songs.insert(index, removedSong);
+          });
+        },
+      ),
+    ),
+  );
   }
 
   @override
