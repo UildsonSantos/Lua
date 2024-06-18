@@ -188,30 +188,57 @@ class HomePageState extends State<HomePage> {
                   // DraggableScrollableSheet
                   _showPlayer
                       ? DraggableScrollableSheet(
-                          initialChildSize: 0.2,
-                          minChildSize: 0.2,
-                          maxChildSize: 0.8,
+                          initialChildSize: 0.4,
+                          minChildSize: 0.28,
+                          maxChildSize: 1,
                           builder: (BuildContext context,
                               ScrollController scrollController) {
-                            return PlayerWidget(
-                              scrollController: scrollController,
-                              playlist: _playlist,
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  alignment: Alignment.topRight,
+                                  child: IconButton(
+                                    iconSize: 60,
+                                    color: Colors.purple,
+                                    icon: Icon(
+                                      Icons.play_circle,
+                                      color: Colors.amber.shade800,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _addPlayerList();
+                                        _selectedSongs.clear();
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: PlayerWidget(
+                                    scrollController: scrollController,
+                                    playlist: _playlist,
+                                  ),
+                                ),
+                              ],
                             );
                           },
                         )
-                      : const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _addPlayerList();
-                          _selectedSongs.clear();
-                        });
-                      },
-                      child: const Text('Adicionar Selecionados'),
-                    ),
-                  ),
+                      : Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: IconButton(
+                              iconSize: 60,
+                              color: Colors.amber.shade900,
+                              icon: const Icon(Icons.play_circle_rounded),
+                              onPressed: _selectedSongs.isNotEmpty
+                                  ? () {
+                                      setState(() {
+                                        _addPlayerList();
+                                        _selectedSongs.clear();
+                                      });
+                                    }
+                                  : null),
+                        ),
                 ],
               )
             : Center(
