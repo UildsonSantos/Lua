@@ -8,11 +8,13 @@ import 'package:lua/presentation/blocs/blocs.dart';
 
 class PlayerWidget extends StatefulWidget {
   final Playlist playlist;
+  final ScrollController scrollController;
   final int initialIndex;
 
   const PlayerWidget({
     super.key,
     required this.playlist,
+    required this.scrollController,
     this.initialIndex = 0,
   });
 
@@ -27,6 +29,14 @@ class PlayerWidgetState extends State<PlayerWidget> {
 
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
+
+  bool _isExpanded = false;
+
+  void _toggleExpand() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
 
   @override
   void initState() {
@@ -91,14 +101,13 @@ class PlayerWidgetState extends State<PlayerWidget> {
   Widget build(BuildContext context) {
     return BlocBuilder<SongBloc, SongState>(
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.playlist.name),
-          ),
-          body: Column(
+        return Container(
+          color: Colors.amber,
+          child: Column(
             children: [
               Expanded(
                 child: ListView.builder(
+                  controller: widget.scrollController,
                   itemCount: widget.playlist.songs.length,
                   itemBuilder: (context, index) {
                     final song = widget.playlist.songs[index];
