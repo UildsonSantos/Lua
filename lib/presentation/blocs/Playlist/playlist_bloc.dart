@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:lua/application/services/services.dart';
-import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/usecases/usecases.dart';
 
