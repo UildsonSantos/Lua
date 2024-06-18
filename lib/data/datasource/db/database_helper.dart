@@ -1,4 +1,4 @@
-import 'package:lua/data/models/models.dart';
+import 'package:lua/domain/entities/entities.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -57,7 +57,7 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<void> insertSong(SongModel song) async {
+  Future<void> insertSong(Song song) async {
     final db = await database;
     await db.insert('songs', song.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
@@ -68,19 +68,19 @@ class DatabaseHelper {
     await db.delete('songs', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<List<SongModel>> getAllSongs() async {
+  Future<List<Song>> getAllSongs() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('songs');
     return List.generate(maps.length, (i) {
-      return SongModel.fromMap(maps[i]);
+      return Song.fromMap(maps[i]);
     });
   }
 
-  Future<List<PlaylistModel>> getAllPlaylists() async {
+  Future<List<Playlist>> getAllPlaylists() async {
     final db = await database;
     final List<Map<String, dynamic>> playlistMaps = await db.query('playlists');
 
-    List<PlaylistModel> playlists = [];
+    List<Playlist> playlists = [];
 
     for (Map<String, dynamic> playlistMap in playlistMaps) {
       List<Map<String, dynamic>> songMaps = await db.rawQuery('''
@@ -90,10 +90,18 @@ class DatabaseHelper {
         WHERE ps.playlistId = ?
       ''', [playlistMap['id']]);
 
-      List<SongModel> songs =
-          songMaps.map((songMap) => SongModel.fromMap(songMap)).toList();
+      List<Song> songs = songMaps
+          .map((songMap) => Song(
+                id: songMap['id'],
+                title: songMap['title'],
+                artist: songMap['artist'],
+                album: songMap['album'],
+                duration: songMap['duration'],
+                filePath: songMap['filePath'],
+              ))
+          .toList();
 
-      playlists.add(PlaylistModel(
+      playlists.add(Playlist(
         id: playlistMap['id'],
         name: playlistMap['name'],
         songs: songs,
@@ -103,36 +111,36 @@ class DatabaseHelper {
     return playlists;
   }
 
-  Future<void> insertPlaylist(PlaylistModel playlist) async {
+  Future<void> insertPlaylist(Playlist playlist) async {
     final db = await database;
     int playlistId = await db.insert('playlists', playlist.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
 
-    // Converter a lista de Song para SongModel
-    List<SongModel> songModels =
-        playlist.songs.map((song) => SongModel.fromSong(song)).toList();
-
-    for (SongModel song in songModels) {
+    for (Song song in playlist.songs) {
       await db.insert(
-          'playlist_songs', {'playlistId': playlistId, 'songId': song.id},
+          'playlist_songs',
+          {
+            'playlistId': playlistId,
+            'songId': song.id,
+          },
           conflictAlgorithm: ConflictAlgorithm.replace);
     }
   }
 
-  Future<void> updatePlaylist(PlaylistModel playlist) async {
+  Future<void> updatePlaylist(Playlist playlist) async {
     final db = await database;
     await db.update('playlists', playlist.toMap(),
         where: 'id = ?', whereArgs: [playlist.id]);
     await db.delete('playlist_songs',
         where: 'playlistId = ?', whereArgs: [playlist.id]);
 
-    // Converter a lista de Song para SongModel
-    List<SongModel> songModels =
-        playlist.songs.map((song) => SongModel.fromSong(song)).toList();
-
-    for (SongModel song in songModels) {
+    for (Song song in playlist.songs) {
       await db.insert(
-          'playlist_songs', {'playlistId': playlist.id, 'songId': song.id},
+          'playlist_songs',
+          {
+            'playlistId': playlist.id,
+            'songId': song.id,
+          },
           conflictAlgorithm: ConflictAlgorithm.replace);
     }
   }
