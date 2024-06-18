@@ -30,7 +30,7 @@ class DatabaseHelper {
   Future<void> _createDb(Database db, int version) async {
     await db.execute('''
       CREATE TABLE songs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         title TEXT,
         artist TEXT,
         album TEXT,
@@ -41,15 +41,15 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE playlists (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         name TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE playlist_songs (
-        playlistId INTEGER,
-        songId INTEGER,
+        playlistId TEXT,
+        songId TEXT,
         FOREIGN KEY (playlistId) REFERENCES playlists(id) ON DELETE CASCADE,
         FOREIGN KEY (songId) REFERENCES songs(id) ON DELETE CASCADE,
         PRIMARY KEY (playlistId, songId)
