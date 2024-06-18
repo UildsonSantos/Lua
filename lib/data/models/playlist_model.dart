@@ -1,4 +1,4 @@
-import 'package:lua/data/models/models.dart';
+
 import 'package:lua/domain/entities/entities.dart';
 
 class PlaylistModel extends Playlist {
@@ -20,7 +20,7 @@ class PlaylistModel extends Playlist {
     return PlaylistModel(
       id: playlist.id,
       name: playlist.name,
-      songs: playlist.songs.map((song) => SongModel.fromSong(song)).toList(),
+      songs: List<Song>.from(playlist.songs), // Copia das músicas para evitar mutabilidade
     );
   }
 
@@ -31,18 +31,11 @@ class PlaylistModel extends Playlist {
     };
   }
 
-  Playlist toPlaylist() {
-    return Playlist(
-      id: id,
-      name: name,
-      songs: songs.map((songModel) => songModel).toList(),
-    );
-  }
-
+  @override
   PlaylistModel copyWith({
     int? id,
     String? name,
-    List<SongModel>? songs,
+    List<Song>? songs,
   }) {
     return PlaylistModel(
       id: id ?? this.id,
