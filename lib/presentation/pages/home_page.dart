@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lua/core/utils/utils.dart';
 import 'package:lua/data/models/models.dart';
@@ -26,11 +27,37 @@ class HomePageState extends State<HomePage> {
   final List<SongModel> _addedSongs = [];
   Playlist _playlist = const Playlist(id: 1, name: 'Selected Songs', songs: []);
   bool _showPlayer = false;
+  bool _showButton = true;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _requestPermissionAndLoadContent();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Dispose o ScrollController ao finalizar
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      // Scroll para cima
+      setState(() {
+        _showButton = true;
+      });
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      // Scroll para baixo
+      setState(() {
+        _showButton = false;
+      });
+    }
   }
 
   Future<void> _requestPermissionAndLoadContent() async {
@@ -159,6 +186,7 @@ class HomePageState extends State<HomePage> {
             ? Stack(
                 children: [
                   ListView.builder(
+                    controller: _scrollController,
                     itemCount: _currentDirectoryContents.length,
                     itemBuilder: (context, index) {
                       final fileOrDirectory = _currentDirectoryContents[index];
@@ -200,10 +228,14 @@ class HomePageState extends State<HomePage> {
                                   alignment: Alignment.topRight,
                                   child: IconButton(
                                     iconSize: 60,
-                                    color: Colors.purple,
-                                    icon: Icon(
-                                      Icons.play_circle,
-                                      color: Colors.amber.shade800,
+                                    color: Colors.amber,
+                                    icon: AnimatedScale(
+                                      scale: _showButton ? 1.0 : 0.0,
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      child: const Icon(
+                                        Icons.play_circle_rounded,
+                                      ),
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -228,8 +260,14 @@ class HomePageState extends State<HomePage> {
                           right: 10,
                           child: IconButton(
                               iconSize: 60,
-                              color: Colors.amber.shade900,
-                              icon: const Icon(Icons.play_circle_rounded),
+                              color: Colors.amber,
+                              icon: AnimatedScale(
+                                scale: _showButton ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: const Icon(
+                                  Icons.play_circle_rounded,
+                                ),
+                              ),
                               onPressed: _selectedSongs.isNotEmpty
                                   ? () {
                                       setState(() {
