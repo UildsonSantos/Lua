@@ -3,21 +3,36 @@ import 'package:equatable/equatable.dart';
 import 'package:lua/domain/entities/entities.dart';
 
 class Playlist extends Equatable {
-  final int? id;
+  final String id;
   final String name;
   final List<Song> songs;
 
   const Playlist({
-    this.id,
+    required this.id,
     required this.name,
     required this.songs,
   });
 
   @override
-  List<Object> get props => [id!, name, songs];
+  List<Object> get props => [id, name, songs];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
+
+  factory Playlist.fromMap(Map<String, dynamic> map, List<Song> songs) {
+    return Playlist(
+      id: map['id'],
+      name: map['name'],
+      songs: songs,
+    );
+  }
 
   Playlist copyWith({
-    int? id,
+    String? id,
     String? name,
     List<Song>? songs,
   }) {
