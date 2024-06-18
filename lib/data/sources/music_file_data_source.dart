@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:lua/data/models/models.dart';
+import 'package:lua/domain/entities/entities.dart';
 
 class MusicFileDataSource {
-  Future<List<SongModel>> getLocalSongs() async {
+  Future<List<Song>> getLocalSongs() async {
     final directory = Directory('/storage/emulated/0');
     if (directory.existsSync()) {
       final musicFiles = directory
@@ -13,13 +13,13 @@ class MusicFileDataSource {
               (file.path.endsWith('.mp3') || (file.path.endsWith('.mp4'))))
           .toList();
 
-      List<SongModel> songs = [];
+      List<Song> songs = [];
 
       for (var file in musicFiles) {
         final metadata = await MetadataRetriever.fromFile(File(file.path));
 
-        songs.add(SongModel(
-          id: null, // ID será gerado pelo banco de dados
+        songs.add(Song(
+          id: file.path,
           title: metadata.trackName ?? file.uri.pathSegments.last,
           artist: metadata.trackArtistNames?.join(', ') ?? 'Unknown Artist',
           album: metadata.albumName ?? 'Unknown Album',
@@ -34,12 +34,12 @@ class MusicFileDataSource {
     }
   }
 
-  Future<SongModel> getSingleLocalSong(String source) async {
+  Future<Song> getSingleLocalSong(String source) async {
     File file = File(source);
     final metadata = await MetadataRetriever.fromFile(File(file.path));
 
-    SongModel singleSong = SongModel(
-      id: null, // ID será gerado pelo banco de dados
+    Song singleSong = Song(
+      id: source,
       title: metadata.trackName ?? file.uri.pathSegments.last,
       artist: metadata.trackArtistNames?.join(', ') ?? 'Unknown Artist',
       album: metadata.albumName ?? 'Unknown Album',
