@@ -8,12 +8,15 @@ class PermissionApp {
         Permission.audio,
         Permission.videos,
         Permission.photos,
-        Permission.storage,
+        Permission.manageExternalStorage,
       ].request();
 
-      return status[Permission.storage]?.isGranted ?? false;
+      return (status[Permission.audio]!.isGranted &&
+          status[Permission.videos]!.isGranted &&
+          status[Permission.photos]!.isGranted &&
+          status[Permission.manageExternalStorage]!.isGranted);
     } else {
-      return status.isGranted;
+      return status.isDenied;
     }
   }
 }
