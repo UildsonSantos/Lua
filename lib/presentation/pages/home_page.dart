@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lua/core/utils/utils.dart';
-import 'package:lua/data/models/models.dart';
 import 'package:lua/data/sources/music_file_data_source.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
@@ -24,8 +23,9 @@ class HomePageState extends State<HomePage> {
   final FileRepository _fileRepository = GetIt.instance<FileRepository>();
   final MusicFileDataSource _musicFileDataSource = MusicFileDataSource();
   final Set<FileSystemEntity> _selectedSongs = {};
-  final List<SongModel> _addedSongs = [];
-  Playlist _playlist = const Playlist(id: 1, name: 'Selected Songs', songs: []);
+  final List<Song> _addedSongs = [];
+  Playlist _playlist =
+      const Playlist(id: '1', name: 'Selected Songs', songs: []);
   bool _showPlayer = false;
   bool _showButton = true;
   late ScrollController _scrollController;
@@ -84,7 +84,7 @@ class HomePageState extends State<HomePage> {
     if (fileOrDirectory is File) {
       if (fileOrDirectory.path.endsWith('.mp3') ||
           fileOrDirectory.path.endsWith('.mp4')) {
-        SongModel song =
+        Song song =
             await _musicFileDataSource.getSingleLocalSong(fileOrDirectory.path);
 
         setState(() {
@@ -140,7 +140,7 @@ class HomePageState extends State<HomePage> {
   void _addPlayerList() {
     if (_selectedSongs.isNotEmpty) {
       _playlist = Playlist(
-        id: 1, // Defina um ID adequado, se necessário
+        id: '1', // Defina um ID adequado, se necessário
         name: 'Selected Songs',
         songs: _addedSongs,
       );

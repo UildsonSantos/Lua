@@ -121,9 +121,7 @@ class PlayerWidgetState extends State<PlayerWidget> {
                   itemCount: widget.playlist.songs.length,
                   itemBuilder: (context, index) {
                     final song = widget.playlist.songs[index];
-                    final songKey = song.id != null
-                        ? Key(song.id.toString())
-                        : Key('${song.title}-${song.duration}');
+                    final songKey = Key(song.id);
                     return Dismissible(
                       key: songKey,
                       direction: DismissDirection.startToEnd,
