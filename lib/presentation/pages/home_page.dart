@@ -27,6 +27,7 @@ class HomePageState extends State<HomePage> {
   Playlist _playlist =
       const Playlist(id: '1', name: 'Selected Songs', songs: []);
   bool _showPlayer = false;
+  bool _hasPermission = false;
   bool _showButton = true;
   late ScrollController _scrollController;
 
@@ -61,8 +62,8 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _requestPermissionAndLoadContent() async {
-    bool hasPermission = await PermissionApp.permissionRequest();
-    if (hasPermission) {
+    _hasPermission = await PermissionApp.permissionRequest();
+    if (_hasPermission) {
       _loadDirectoryContents(_directoryStack.last);
     } else {
       if (kDebugMode) {
@@ -283,7 +284,9 @@ class HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Nenhum arquivo de áudio encontrado'),
+                    _hasPermission
+                        ? const Text('Permissão de acesso negada.')
+                        : const Text('Nenhum arquivo de áudio encontrado'),
                     ElevatedButton(
                       onPressed: () =>
                           _loadDirectoryContents(_directoryStack.last),
