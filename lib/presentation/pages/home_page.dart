@@ -52,12 +52,30 @@ class HomePageState extends State<HomePage> {
                 scrollDirection:
                     _isVerticalView ? Axis.horizontal : Axis.vertical,
                 children: [
-                  SizedBox(
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      border: _isVerticalView ? Border.all(color: Colors.grey) : null,
+                    ),
                     width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 1'),
-                      onTap: () {},
+                    child: Column(
+                      verticalDirection: VerticalDirection.down,
+                      children: [
+                        ListTile(
+                          title: const Text('Movies'),
+                          subtitle: const Row(
+                            children: [
+                              Text('25'),
+                              Icon(Icons.folder_rounded),
+                              SizedBox(width: 7),
+                              Text('5'),
+                              Icon(Icons.insert_drive_file_outlined),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.more_vert),
+                          onTap: () {},
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(
