@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lua/presentation/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,124 +52,26 @@ class HomePageState extends State<HomePage> {
               scrollDirection:
                   _isVerticalView ? Axis.horizontal : Axis.vertical,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
-                    border:
-                        _isVerticalView ? Border.all(color: Colors.grey) : null,
-                  ),
-                  width: 200.0,
-                  child: _isVerticalView
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.folder,
-                              size: 70,
-                            ),
-                            ListTile(
-                              title: const Text('Movies'),
-                              subtitle: const Row(
-                                children: [
-                                  Text('25'),
-                                  Icon(Icons.folder_rounded),
-                                  SizedBox(width: 7),
-                                  Text('5'),
-                                  Icon(Icons.insert_drive_file_outlined),
-                                ],
-                              ),
-                              trailing: const Icon(Icons.more_vert),
-                              onTap: () {},
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.folder,
-                              size: 60,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ListTile(
-                                title: const Text('Movies'),
-                                subtitle: const Row(
-                                  children: [
-                                    Text('25'),
-                                    Icon(Icons.folder_rounded),
-                                    SizedBox(width: 7),
-                                    Text('5'),
-                                    Icon(Icons.insert_drive_file_outlined),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.more_vert),
-                                onTap: () {},
-                              ),
-                            ),
-                          ],
-                        ),
+                FolderWidget(
+                  isVerticalView: _isVerticalView,
+                  icon: Icons.folder,
+                  title: 'Movies',
+                  folderCount: 25,
+                  fileCount: 5,
                 ),
-                const SizedBox(
-                  width: 5,
+                FolderWidget(
+                  isVerticalView: _isVerticalView,
+                  icon: Icons.folder,
+                  title: 'Music',
+                  folderCount: 25,
+                  fileCount: 5,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
-                    border:
-                        _isVerticalView ? Border.all(color: Colors.grey) : null,
-                  ),
-                  width: 200.0,
-                  child: _isVerticalView
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.folder,
-                              size: 70,
-                            ),
-                            ListTile(
-                              title: const Text('Movies'),
-                              subtitle: const Row(
-                                children: [
-                                  Text('25'),
-                                  Icon(Icons.folder_rounded),
-                                  SizedBox(width: 7),
-                                  Text('5'),
-                                  Icon(Icons.insert_drive_file_outlined),
-                                ],
-                              ),
-                              trailing: const Icon(Icons.more_vert),
-                              onTap: () {},
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.folder,
-                              size: 60,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ListTile(
-                                title: const Text('Movies'),
-                                subtitle: const Row(
-                                  children: [
-                                    Text('25'),
-                                    Icon(Icons.folder_rounded),
-                                    SizedBox(width: 7),
-                                    Text('5'),
-                                    Icon(Icons.insert_drive_file_outlined),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.more_vert),
-                                onTap: () {},
-                              ),
-                            ),
-                          ],
-                        ),
+                FolderWidget(
+                  isVerticalView: _isVerticalView,
+                  icon: Icons.folder,
+                  title: 'Recordings',
+                  folderCount: 25,
+                  fileCount: 5,
                 ),
               ],
             ),
@@ -202,6 +105,76 @@ class HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
+    );
+  }
+}
+
+class Favorito extends StatelessWidget {
+  const Favorito({
+    super.key,
+    required bool isVerticalView,
+  }) : _isVerticalView = isVerticalView;
+
+  final bool _isVerticalView;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: _isVerticalView ? Border.all(color: Colors.grey) : null,
+      ),
+      width: 200.0,
+      child: _isVerticalView
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.folder,
+                  size: 70,
+                ),
+                ListTile(
+                  title: const Text('Movies'),
+                  subtitle: const Row(
+                    children: [
+                      Text('25'),
+                      Icon(Icons.folder_rounded),
+                      SizedBox(width: 7),
+                      Text('5'),
+                      Icon(Icons.insert_drive_file_outlined),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.more_vert),
+                  onTap: () {},
+                ),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.folder,
+                  size: 60,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ListTile(
+                    title: const Text('Movies'),
+                    subtitle: const Row(
+                      children: [
+                        Text('25'),
+                        Icon(Icons.folder_rounded),
+                        SizedBox(width: 7),
+                        Text('5'),
+                        Icon(Icons.insert_drive_file_outlined),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.more_vert),
+                    onTap: () {},
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
