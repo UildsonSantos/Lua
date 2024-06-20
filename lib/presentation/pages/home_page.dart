@@ -47,175 +47,78 @@ class HomePageState extends State<HomePage> {
             constraints: BoxConstraints(
               maxHeight: _isVerticalView ? screenHeight / 6 : screenHeight / 2,
             ),
-            child: Expanded(
-              child: ListView(
-                scrollDirection:
-                    _isVerticalView ? Axis.horizontal : Axis.vertical,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(5)),
-                      border: _isVerticalView ? Border.all(color: Colors.grey) : null,
-                    ),
-                    width: 200.0,
-                    child: Column(
-                      verticalDirection: VerticalDirection.down,
-                      children: [
-                        ListTile(
-                          title: const Text('Movies'),
-                          subtitle: const Row(
-                            children: [
-                              Text('25'),
-                              Icon(Icons.folder_rounded),
-                              SizedBox(width: 7),
-                              Text('5'),
-                              Icon(Icons.insert_drive_file_outlined),
-                            ],
-                          ),
-                          trailing: const Icon(Icons.more_vert),
-                          onTap: () {},
+            child: ListView(
+              scrollDirection:
+                  _isVerticalView ? Axis.horizontal : Axis.vertical,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    border:
+                        _isVerticalView ? Border.all(color: Colors.grey) : null,
+                  ),
+                  width: 200.0,
+                  child: Column(
+                    verticalDirection: VerticalDirection.down,
+                    children: [
+                      ListTile(
+                        title: const Text('Movies'),
+                        subtitle: const Row(
+                          children: [
+                            Text('25'),
+                            Icon(Icons.folder_rounded),
+                            SizedBox(width: 7),
+                            Text('5'),
+                            Icon(Icons.insert_drive_file_outlined),
+                          ],
                         ),
-                      ],
-                    ),
+                        trailing: const Icon(Icons.more_vert),
+                        onTap: () {},
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 2'),
-                      onTap: () {},
-                    ),
+                ),
+                SizedBox(
+                  width: 200.0,
+                  child: ListTile(
+                    leading: const Icon(Icons.folder),
+                    title: const Text('Diretório Favorito 2'),
+                    onTap: () {},
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 3'),
-                      onTap: () {},
-                    ),
+                ),
+                SizedBox(
+                  width: 200.0,
+                  child: ListTile(
+                    leading: const Icon(Icons.folder),
+                    title: const Text('Diretório Favorito 3'),
+                    onTap: () {},
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 4'),
-                      onTap: () {},
-                    ),
+                ),
+                SizedBox(
+                  width: 200.0,
+                  child: ListTile(
+                    leading: const Icon(Icons.folder),
+                    title: const Text('Diretório Favorito 4'),
+                    onTap: () {},
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 5'),
-                      onTap: () {},
-                    ),
+                ),
+                SizedBox(
+                  width: 200.0,
+                  child: ListTile(
+                    leading: const Icon(Icons.folder),
+                    title: const Text('Diretório Favorito 5'),
+                    onTap: () {},
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 6'),
-                      onTap: () {},
-                    ),
+                ),
+                SizedBox(
+                  width: 200.0,
+                  child: ListTile(
+                    leading: const Icon(Icons.folder),
+                    title: const Text('Diretório Favorito 6'),
+                    onTap: () {},
                   ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 1'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 2'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 3'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 4'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 5'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 6'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 1'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 2'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 3'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 4'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 5'),
-                      onTap: () {},
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    child: ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: const Text('Diretório Favorito 6'),
-                      onTap: () {},
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const Divider(),
