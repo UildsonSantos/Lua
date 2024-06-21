@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 import 'package:lua/domain/usecases/usecases.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
+import 'package:lua/presentation/widgets/widgets.dart';
 
 class FileExplorerPage extends StatelessWidget {
   const FileExplorerPage({super.key});
@@ -33,6 +34,7 @@ class FileExplorerPageView extends StatefulWidget {
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
   final List<String> _directoryNames = ['Navigator'];
+  final Set<FileSystemEntity> _selectedSongs = {};
 
   @override
   void initState() {
@@ -109,10 +111,20 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
               itemCount: state.files.length,
               itemBuilder: (context, index) {
                 final fileOrDirectory = state.files[index];
-                return ListTile(
-                  title: Text(fileOrDirectory.path.split('/').last),
-                  onTap: () => _handleFileSelection(fileOrDirectory),
-                );
+                if (fileOrDirectory is Directory) {
+                  return FolderWidget(
+                    isVerticalView: false,
+                    icon: Icons.folder,
+                    title: fileOrDirectory.path.split('/').last,
+                    folderCount: 0, // TODO: Ajustar
+                    fileCount: 0, // TODO: Ajustar
+                  );
+                } else {
+                  return ListTile(
+                    title: Text(fileOrDirectory.path.split('/').last),
+                    onTap: () => _handleFileSelection(fileOrDirectory),
+                  );
+                }
               },
             );
           } else if (state is PermissionDenied) {
