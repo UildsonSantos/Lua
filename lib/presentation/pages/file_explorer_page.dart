@@ -31,6 +31,9 @@ class FileExplorerPageView extends StatefulWidget {
 }
 
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
+  final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
+  final List<String> _directoryNames = ['Navigator'];
+
   @override
   void initState() {
     super.initState();
@@ -43,11 +46,59 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     });
   }
 
+  void _navigateToDirectory(int index) {
+    if (index < _directoryStack.length) {
+      setState(() {
+        _directoryStack.removeRange(index + 1, _directoryStack.length);
+        _directoryNames.removeRange(index + 1, _directoryNames.length);
+      });
+      context
+          .read<FileBloc>()
+          .add(LoadDirectoryContentsEvent(_directoryStack[index]));
+    }
+  }
+
+  void _handleFileSelection(FileSystemEntity fileOrDirectory) {
+    if (fileOrDirectory is Directory) {
+      setState(() {
+        _directoryStack.add(fileOrDirectory);
+        _directoryNames.add(fileOrDirectory.path.split('/').last);
+      });
+      context.read<FileBloc>().add(LoadDirectoryContentsEvent(fileOrDirectory));
+    } else {
+      //TODO: Lógica de seleção de arquivos
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LUA'),
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (int i = 0; i < _directoryNames.length; i++)
+                GestureDetector(
+                  onTap: () => _navigateToDirectory(i),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _directoryNames[i],
+                          style: const TextStyle(fontSize: 15.0),
+                        ),
+                        if (i < _directoryNames.length - 1)
+                          const Icon(Icons.chevron_right, size: 24.0),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
       body: BlocBuilder<FileBloc, FileState>(
         builder: (context, state) {
@@ -60,9 +111,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                 final fileOrDirectory = state.files[index];
                 return ListTile(
                   title: Text(fileOrDirectory.path.split('/').last),
-                  onTap: () {
-                    // Ação ao clicar no arquivo ou diretório
-                  },
+                  onTap: () => _handleFileSelection(fileOrDirectory),
                 );
               },
             );
