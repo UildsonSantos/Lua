@@ -1,8 +1,12 @@
 import 'dart:io';
 
+import 'package:lua/data/sources/souces.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
 class FileRepositoryImpl implements FileRepository {
+  final MusicFileDataSource musicFileDataSource;
+
+  FileRepositoryImpl(this.musicFileDataSource);
   @override
   Future<List<FileSystemEntity>> listFilesAndDirectories(
       Directory directory) async {
@@ -13,5 +17,10 @@ class FileRepositoryImpl implements FileRepository {
       }
     }
     return entities;
+  }
+
+  @override
+  Future<bool> requestPermission() {
+    return musicFileDataSource.requestPermission();
   }
 }

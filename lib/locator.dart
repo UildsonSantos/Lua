@@ -25,7 +25,8 @@ Future<void> init() async {
       () => PlaylistRepositoryImpl(sl<LocalDataSource>()));
   sl.registerLazySingleton<SongRepository>(() =>
       SongRepositoryImpl(sl<LocalDataSource>(), sl<MusicFileDataSource>()));
-  sl.registerLazySingleton<FileRepository>(() => FileRepositoryImpl());
+  sl.registerLazySingleton<FileRepository>(
+      () => FileRepositoryImpl(sl<MusicFileDataSource>()));
 
   // UseCases
   sl.registerLazySingleton<CreatePlaylist>(
@@ -36,6 +37,11 @@ Future<void> init() async {
       () => UpdatePlaylist(sl<PlaylistRepository>()));
   sl.registerLazySingleton<RemovePlaylist>(
       () => RemovePlaylist(sl<PlaylistRepository>()));
+
+  sl.registerLazySingleton<LoadDirectoryContents>(
+      () => LoadDirectoryContents(sl<FileRepository>()));
+  sl.registerLazySingleton<RequestPermission>(
+      () => RequestPermission(sl<FileRepository>()));
 
   sl.registerLazySingleton<GetAllSongs>(
       () => GetAllSongs(sl<SongRepository>()));
@@ -61,6 +67,13 @@ Future<void> init() async {
       playSong: sl<PlaySong>(),
       pauseSong: sl<PauseSong>(),
       stopSong: sl<StopSong>(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => FileBloc(
+      loadDirectoryContents: sl<LoadDirectoryContents>(),
+      requestPermission: sl<RequestPermission>(),
     ),
   );
 }

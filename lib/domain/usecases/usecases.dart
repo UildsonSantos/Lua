@@ -1,8 +1,10 @@
 export 'create_playlist.dart';
 export 'get_all_playlists.dart';
 export 'get_all_songs.dart';
+export 'load_directory_contents.dart';
 export 'pause_song.dart';
 export 'play_song.dart';
 export 'remove_playlist.dart';
+export 'request_permission.dart';
 export 'stop_song.dart';
 export 'update_playlist.dart';

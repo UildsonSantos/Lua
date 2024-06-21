@@ -48,4 +48,14 @@ class MusicFileDataSource {
     );
     return singleSong;
   }
+
+  Future<List<FileSystemEntity>> listFilesAndDirectories(
+      Directory directory) async {
+    return directory.list().toList();
+  }
+
+  Future<bool> requestPermission() async {
+    //TODO: Lógica de solicitação de permissão
+    return true;
+  }
 }
