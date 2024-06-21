@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lua/presentation/pages/pages.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,6 +23,13 @@ class HomePageState extends State<HomePage> {
     setState(() {
       _isVerticalView = !_isVerticalView;
     });
+  }
+
+  void _navigateToFileExplorerPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const FileExplorerPage()),
+    );
   }
 
   @override
@@ -83,7 +91,9 @@ class HomePageState extends State<HomePage> {
           ListTile(
             leading: const Icon(Icons.storage),
             title: const Text('Memória Interna'),
-            onTap: () {},
+            onTap: () {
+              _navigateToFileExplorerPage(context);
+            },
           ),
         ],
       ),
