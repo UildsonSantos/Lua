@@ -44,8 +44,8 @@ class FolderWidget extends StatelessWidget {
         } else if (snapshot.hasError) {
           return const Text('Erro ao carregar diretório');
         } else {
-          int folderCount = snapshot.data?['folderCount'] ?? 0;
-          int fileCount = snapshot.data?['fileCount'] ?? 0;
+          int folderCount = snapshot.data!['folderCount']!;
+          int fileCount = snapshot.data!['fileCount']!;
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 3.5),
@@ -59,27 +59,20 @@ class FolderWidget extends StatelessWidget {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(
-                          icon,
-                          size: 70,
-                        ),
+                        Icon(icon, size: 70),
                         ListTile(
                           title: Text(title),
                           subtitle: Row(
                             children: [
-                              folderCount > 0
-                                  ? Text('$folderCount')
-                                  : const SizedBox(),
-                              folderCount > 0
-                                  ? const Icon(Icons.folder_rounded)
-                                  : const SizedBox(),
+                              if (folderCount > 0) ...[
+                                Text('$folderCount'),
+                                const Icon(Icons.folder_outlined),
+                              ],
                               const SizedBox(width: 7),
-                              fileCount > 0
-                                  ? Text('$fileCount')
-                                  : const SizedBox(),
-                              fileCount > 0
-                                  ? const Icon(Icons.insert_drive_file_outlined)
-                                  : const SizedBox(),
+                              if (fileCount > 0) ...[
+                                Text('$fileCount'),
+                                const Icon(Icons.insert_drive_file_outlined),
+                              ],
                             ],
                           ),
                           trailing: const Icon(Icons.more_vert),
@@ -95,21 +88,30 @@ class FolderWidget extends StatelessWidget {
                           child: ListTile(
                             title: Text(title),
                             subtitle: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                folderCount > 0
-                                    ? Text('$folderCount')
-                                    : const SizedBox(),
-                                folderCount > 0
-                                    ? const Icon(Icons.folder_rounded)
-                                    : const SizedBox(),
-                                const SizedBox(width: 7),
-                                fileCount > 0
-                                    ? Text('$fileCount')
-                                    : const SizedBox(),
-                                fileCount > 0
-                                    ? const Icon(
-                                        Icons.insert_drive_file_outlined)
-                                    : const SizedBox(),
+                                if (folderCount > 0) ...[
+                                  Text('$folderCount'),
+                                  const Icon(Icons.folder_outlined, size: 15.0),
+                                ],
+                                if (fileCount > 0 && folderCount > 0)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 3.0, horizontal: 4.0),
+                                    child: Text(
+                                      '•',
+                                      style: TextStyle(
+                                        fontSize: 10.0,
+                                        height: 0.75,
+                                        color: Colors.grey
+                                      ),
+                                    ),
+                                  ),
+                                if (fileCount > 0) ...[
+                                  Text('$fileCount'),
+                                  const Icon(Icons.insert_drive_file_outlined,
+                                      size: 13.0),
+                                ],
                               ],
                             ),
                             trailing: const Icon(Icons.more_vert),
