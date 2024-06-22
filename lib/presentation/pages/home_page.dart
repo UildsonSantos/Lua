@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:lua/presentation/pages/pages.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
@@ -63,23 +65,17 @@ class HomePageState extends State<HomePage> {
                 FolderWidget(
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  title: 'Movies',
-                  folderCount: 25,
-                  fileCount: 5,
+                  fileOrDirectory: Directory('/storage/emulated/0/Movies'),
                 ),
                 FolderWidget(
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  title: 'Music',
-                  folderCount: 25,
-                  fileCount: 5,
+                  fileOrDirectory: Directory('/storage/emulated/0/Music'),
                 ),
                 FolderWidget(
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  title: 'Recordings',
-                  folderCount: 25,
-                  fileCount: 5,
+                  fileOrDirectory: Directory('/storage/emulated/0/Documents'),
                 ),
               ],
             ),

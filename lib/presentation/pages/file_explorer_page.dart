@@ -113,11 +113,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                 final fileOrDirectory = state.files[index];
                 if (fileOrDirectory is Directory) {
                   return FolderWidget(
-                    isVerticalView: false,
                     icon: Icons.folder,
-                    title: fileOrDirectory.path.split('/').last,
-                    folderCount: 0, // TODO: Ajustar
-                    fileCount: 0, // TODO: Ajustar
+                    fileOrDirectory: fileOrDirectory,
                   );
                 } else {
                   return ListTile(
