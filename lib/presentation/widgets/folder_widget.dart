@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-class FolderWidget extends StatelessWidget {
+class FolderWidget extends StatefulWidget {
   final bool? isVerticalView;
   final IconData icon;
   final Directory fileOrDirectory;
@@ -15,6 +15,31 @@ class FolderWidget extends StatelessWidget {
     required this.fileOrDirectory,
     this.onTap,
   });
+
+  @override
+  State<FolderWidget> createState() => _FolderWidgetState();
+}
+
+class _FolderWidgetState extends State<FolderWidget> {
+  late Future<Map<String, int>> _futureCount;
+
+  static final Map<String, Map<String, int>> _cache = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
+  }
+
+  Future<Map<String, int>> _getCounterFileOrDirectory(Directory dir) async {
+    if (_cache.containsKey(dir.path)) {
+      return _cache[dir.path]!;
+    } else {
+      final counts = await counterFileOrDirectory(dir);
+      _cache[dir.path] = counts;
+      return counts;
+    }
+  }
 
   Future<Map<String, int>> counterFileOrDirectory(
       Directory fileOrDirectory) async {
@@ -34,10 +59,10 @@ class FolderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String title = fileOrDirectory.path.split('/').last;
+    String title = widget.fileOrDirectory.path.split('/').last;
 
     return FutureBuilder<Map<String, int>>(
-      future: counterFileOrDirectory(fileOrDirectory),
+      future: _futureCount,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Padding(
@@ -45,15 +70,17 @@ class FolderWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
-                border: isVerticalView! ? Border.all(color: Colors.grey) : null,
+                border: widget.isVerticalView!
+                    ? Border.all(color: Colors.grey)
+                    : null,
               ),
               width: 200.0,
-              child: isVerticalView!
+              child: widget.isVerticalView!
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(
-                          icon,
+                          widget.icon,
                           size: 70,
                         ),
                         ListTile(
@@ -70,7 +97,7 @@ class FolderWidget extends StatelessWidget {
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(icon, size: 60),
+                        Icon(widget.icon, size: 60),
                         Expanded(
                           child: ListTile(
                             title: Text(title),
@@ -97,14 +124,16 @@ class FolderWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
-                border: isVerticalView! ? Border.all(color: Colors.grey) : null,
+                border: widget.isVerticalView!
+                    ? Border.all(color: Colors.grey)
+                    : null,
               ),
               width: 200.0,
-              child: isVerticalView!
+              child: widget.isVerticalView!
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(icon, size: 70),
+                        Icon(widget.icon, size: 70),
                         ListTile(
                           title: Text(title),
                           subtitle: Row(
@@ -121,14 +150,14 @@ class FolderWidget extends StatelessWidget {
                             ],
                           ),
                           trailing: const Icon(Icons.more_vert),
-                          onTap: onTap,
+                          onTap: widget.onTap,
                         ),
                       ],
                     )
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(icon, size: 60),
+                        Icon(widget.icon, size: 60),
                         Expanded(
                           child: ListTile(
                             title: Text(title),
@@ -159,7 +188,7 @@ class FolderWidget extends StatelessWidget {
                               ],
                             ),
                             trailing: const Icon(Icons.more_vert),
-                            onTap: onTap,
+                            onTap: widget.onTap,
                           ),
                         ),
                       ],
