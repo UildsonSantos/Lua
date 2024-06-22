@@ -40,7 +40,52 @@ class FolderWidget extends StatelessWidget {
       future: counterFileOrDirectory(fileOrDirectory),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3.5),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+                border: isVerticalView! ? Border.all(color: Colors.grey) : null,
+              ),
+              width: 200.0,
+              child: isVerticalView!
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          icon,
+                          size: 70,
+                        ),
+                        ListTile(
+                          title: Text(title),
+                          subtitle: const Row(
+                            children: [
+                              CircularProgressIndicator(),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.more_vert),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(icon, size: 60),
+                        Expanded(
+                          child: ListTile(
+                            title: Text(title),
+                            subtitle: const Row(
+                              children: [
+                                CircularProgressIndicator(),
+                              ],
+                            ),
+                            trailing: const Icon(Icons.more_vert),
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          );
         } else if (snapshot.hasError) {
           return const Text('Erro ao carregar diretório');
         } else {
@@ -101,10 +146,9 @@ class FolderWidget extends StatelessWidget {
                                     child: Text(
                                       '•',
                                       style: TextStyle(
-                                        fontSize: 10.0,
-                                        height: 0.75,
-                                        color: Colors.grey
-                                      ),
+                                          fontSize: 10.0,
+                                          height: 0.75,
+                                          color: Colors.grey),
                                     ),
                                   ),
                                 if (fileCount > 0) ...[
