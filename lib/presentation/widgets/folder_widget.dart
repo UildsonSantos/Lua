@@ -6,12 +6,14 @@ class FolderWidget extends StatelessWidget {
   final bool? isVerticalView;
   final IconData icon;
   final Directory fileOrDirectory;
+  final VoidCallback? onTap;
 
   const FolderWidget({
     super.key,
     this.isVerticalView = false,
     required this.icon,
     required this.fileOrDirectory,
+    this.onTap,
   });
 
   Future<Map<String, int>> counterFileOrDirectory(
@@ -81,7 +83,7 @@ class FolderWidget extends StatelessWidget {
                             ],
                           ),
                           trailing: const Icon(Icons.more_vert),
-                          onTap: () {},
+                          onTap: onTap,
                         ),
                       ],
                     )
@@ -111,7 +113,7 @@ class FolderWidget extends StatelessWidget {
                               ],
                             ),
                             trailing: const Icon(Icons.more_vert),
-                            onTap: () {},
+                            onTap: onTap,
                           ),
                         ),
                       ],

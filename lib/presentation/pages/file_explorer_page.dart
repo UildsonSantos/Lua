@@ -115,6 +115,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   return FolderWidget(
                     icon: Icons.folder,
                     fileOrDirectory: fileOrDirectory,
+                    onTap: () => _handleFileSelection(fileOrDirectory),
                   );
                 } else {
                   return ListTile(
