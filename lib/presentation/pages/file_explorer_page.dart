@@ -107,18 +107,33 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
           if (state is FileLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is FileLoaded) {
+            final directories = state.files.whereType<Directory>().toList();
+            final files = state.files.whereType<File>().toList();
+            final sortedItems = [...directories, ...files];
             return ListView.builder(
-              itemCount: state.files.length,
+              itemCount: sortedItems.length,
               itemBuilder: (context, index) {
-                final fileOrDirectory = state.files[index];
+                 final fileOrDirectory = sortedItems[index];
                 if (fileOrDirectory is Directory) {
                   return FolderWidget(
                     icon: Icons.folder,
                     fileOrDirectory: fileOrDirectory,
                     onTap: () => _handleFileSelection(fileOrDirectory),
                   );
+                } else if (fileOrDirectory.path.endsWith('.mp3') ||
+                    fileOrDirectory.path.endsWith('.mp4')) {
+                  return ListTile(
+                    leading: const Icon(
+                      size: 30,
+                      Icons.audiotrack_rounded),
+                    title: Text(fileOrDirectory.path.split('/').last),
+                    onTap: () => _handleFileSelection(fileOrDirectory),
+                  );
                 } else {
                   return ListTile(
+                    leading: const Icon(
+                      size: 30,
+                      Icons.sd_card_alert_outlined),
                     title: Text(fileOrDirectory.path.split('/').last),
                     onTap: () => _handleFileSelection(fileOrDirectory),
                   );
