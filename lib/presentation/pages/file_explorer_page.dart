@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lua/domain/repositories/repositories.dart';
@@ -35,6 +36,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
   final List<String> _directoryNames = ['Navigator'];
   final Set<FileSystemEntity> _selectedSongs = {};
+  bool _showButton = true;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
@@ -46,6 +49,30 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
             .add(LoadDirectoryContentsEvent(Directory('/storage/emulated/0')));
       }
     });
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Dispose o ScrollController ao finalizar
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      // Scroll para cima
+      setState(() {
+        _showButton = true;
+      });
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
+      // Scroll para baixo
+      setState(() {
+        _showButton = false;
+      });
+    }
   }
 
   void _navigateToDirectory(int index) {
@@ -110,35 +137,53 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
             final directories = state.files.whereType<Directory>().toList();
             final files = state.files.whereType<File>().toList();
             final sortedItems = [...directories, ...files];
-            return ListView.builder(
-              itemCount: sortedItems.length,
-              itemBuilder: (context, index) {
-                 final fileOrDirectory = sortedItems[index];
-                if (fileOrDirectory is Directory) {
-                  return FolderWidget(
-                    icon: Icons.folder,
-                    fileOrDirectory: fileOrDirectory,
-                    onTap: () => _handleFileSelection(fileOrDirectory),
-                  );
-                } else if (fileOrDirectory.path.endsWith('.mp3') ||
-                    fileOrDirectory.path.endsWith('.mp4')) {
-                  return ListTile(
-                    leading: const Icon(
-                      size: 30,
-                      Icons.audiotrack_rounded),
-                    title: Text(fileOrDirectory.path.split('/').last),
-                    onTap: () => _handleFileSelection(fileOrDirectory),
-                  );
-                } else {
-                  return ListTile(
-                    leading: const Icon(
-                      size: 30,
-                      Icons.sd_card_alert_outlined),
-                    title: Text(fileOrDirectory.path.split('/').last),
-                    onTap: () => _handleFileSelection(fileOrDirectory),
-                  );
-                }
-              },
+            return Stack(
+              children: [
+                ListView.builder(
+                  controller: _scrollController,
+                  itemCount: sortedItems.length,
+                  itemBuilder: (context, index) {
+                    final fileOrDirectory = sortedItems[index];
+                    if (fileOrDirectory is Directory) {
+                      return FolderWidget(
+                        icon: Icons.folder,
+                        fileOrDirectory: fileOrDirectory,
+                        onTap: () => _handleFileSelection(fileOrDirectory),
+                      );
+                    } else if (fileOrDirectory.path.endsWith('.mp3') ||
+                        fileOrDirectory.path.endsWith('.mp4')) {
+                      return ListTile(
+                        leading: const Icon(size: 30, Icons.audiotrack_rounded),
+                        title: Text(fileOrDirectory.path.split('/').last),
+                        onTap: () => _handleFileSelection(fileOrDirectory),
+                      );
+                    } else {
+                      return ListTile(
+                        leading:
+                            const Icon(size: 30, Icons.sd_card_alert_outlined),
+                        title: Text(fileOrDirectory.path.split('/').last),
+                        onTap: () => _handleFileSelection(fileOrDirectory),
+                      );
+                    }
+                  },
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: IconButton(
+                    iconSize: 60,
+                    color: Colors.orange.shade900,
+                    icon: AnimatedScale(
+                      scale: _showButton ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: const Icon(
+                        Icons.play_circle_rounded,
+                      ),
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
             );
           } else if (state is PermissionDenied) {
             return Center(
