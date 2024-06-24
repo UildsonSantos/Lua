@@ -35,7 +35,7 @@ class FileExplorerPageView extends StatefulWidget {
 
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
-  final List<String> _directoryNames = ['Navigator'];
+  List<String> _directoryNames = ['Navigator'];
   bool _showButton = true;
   late ScrollController _scrollController;
 
@@ -45,6 +45,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   @override
   void initState() {
     super.initState();
+    _updateDirectoryNames();
     context.read<FileBloc>().stream.listen((state) {
       if (state is PermissionGranted) {
         context
@@ -78,13 +79,20 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     }
   }
 
+  void _updateDirectoryNames() {
+    _directoryNames =
+        _directoryStack.map((dir) => dir.path.split('/').last).toList();
+  }
+
   void _navigateToDirectory(int index) {
     if (index < _directoryStack.length) {
       setState(() {
         _directoryStack.removeRange(index + 1, _directoryStack.length);
-        _directoryNames.removeRange(index + 1, _directoryNames.length);
+        _updateDirectoryNames();
       });
-      _loadDirectoryContents(_directoryStack[index]);
+      context
+          .read<FileBloc>()
+          .add(LoadDirectoryContentsEvent(_directoryStack[index]));
     }
   }
 
@@ -92,32 +100,11 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     if (fileOrDirectory is Directory) {
       setState(() {
         _directoryStack.add(fileOrDirectory);
-        _directoryNames.add(fileOrDirectory.path.split('/').last);
+        _updateDirectoryNames();
       });
-      _loadDirectoryContents(fileOrDirectory);
+      context.read<FileBloc>().add(LoadDirectoryContentsEvent(fileOrDirectory));
     } else {
       //TODO: Lógica de seleção de arquivos
-    }
-  }
-
-  Future<void> _loadDirectoryContents(Directory directory) async {
-    if (_cache.containsKey(directory.path)) {
-      // Se o resultado já estiver em cache, atualize o estado diretamente
-      setState(() {
-        var contents = _cache[directory.path]!;
-        _directoryNames.add(directory.path.split('/').last);
-        _directoryStack.add(directory);
-        context.read<FileBloc>().add(FileLoadedEvent(contents));
-      });
-    } else {
-      // Caso contrário, carregue e calcule os conteúdos do diretório
-      var contents = await listFilesAndDirectories(directory);
-      setState(() {
-        _cache[directory.path] = contents;
-        _directoryNames.add(directory.path.split('/').last);
-        _directoryStack.add(directory);
-        context.read<FileBloc>().add(FileLoadedEvent(contents));
-      });
     }
   }
 
@@ -208,7 +195,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
               children: [
                 ListView.builder(
                   controller: _scrollController,
-                  itemCount: contents.directories.length + contents.files.length,
+                  itemCount:
+                      contents.directories.length + contents.files.length,
                   itemBuilder: (context, index) {
                     final item = index < contents.directories.length
                         ? contents.directories[index]
@@ -268,7 +256,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
             ),
           );
         } else {
-          return const Center(child: Text('Nenhum arquivo de áudio encontrado'));
+          return const Center(
+              child: Text('Nenhum arquivo de áudio encontrado'));
         }
       },
     );
