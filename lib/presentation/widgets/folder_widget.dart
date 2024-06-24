@@ -23,8 +23,6 @@ class FolderWidget extends StatefulWidget {
 class _FolderWidgetState extends State<FolderWidget> {
   late Future<Map<String, int>> _futureCount;
 
-  static final Map<String, Map<String, int>> _cache = {};
-
   @override
   void initState() {
     super.initState();
@@ -32,29 +30,27 @@ class _FolderWidgetState extends State<FolderWidget> {
   }
 
   Future<Map<String, int>> _getCounterFileOrDirectory(Directory dir) async {
-    if (_cache.containsKey(dir.path)) {
-      return _cache[dir.path]!;
-    } else {
-      final counts = await counterFileOrDirectory(dir);
-      _cache[dir.path] = counts;
-      return counts;
-    }
-  }
-
-  Future<Map<String, int>> counterFileOrDirectory(
-      Directory fileOrDirectory) async {
     int folderCount = 0;
     int fileCount = 0;
 
-    await for (FileSystemEntity entity in fileOrDirectory.list()) {
+    await for (FileSystemEntity entity in dir.list()) {
       if (entity is Directory) {
         folderCount++;
-      } else if (entity is File) {
+      } else if (entity is File &&
+          (entity.path.endsWith('.mp3') || entity.path.endsWith('.mp4'))) {
         fileCount++;
       }
     }
 
     return {'folderCount': folderCount, 'fileCount': fileCount};
+  }
+
+  @override
+  void didUpdateWidget(covariant FolderWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.fileOrDirectory != widget.fileOrDirectory) {
+      _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
+    }
   }
 
   @override
