@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lua/domain/entities/entities.dart';
 
 import 'package:lua/domain/usecases/usecases.dart';
 
@@ -21,16 +22,16 @@ class FileBloc extends Bloc<FileEvent, FileState> {
     on<RequestPermissionEvent>(_onRequestPermission);
   }
 
-  FutureOr<void> _onLoadDirectoryContents(
-      LoadDirectoryContentsEvent event, Emitter<FileState> emit) async {
-    emit(FileLoading());
-    try {
-      final files = await loadDirectoryContents(event.directory);
-      emit(FileLoaded(files));
-    } catch (_) {
-      emit(const FileError('Error ao carregar diretorio.'));
-    }
+FutureOr<void> _onLoadDirectoryContents(
+    LoadDirectoryContentsEvent event, Emitter<FileState> emit) async {
+  emit(FileLoading());
+  try {
+    final directoryContents = await loadDirectoryContents(event.directory);
+    emit(FileLoaded(directoryContents));
+  } catch (_) {
+    emit(const FileError('Error ao carregar diretorio.'));
   }
+}
 
   FutureOr<void> _onRequestPermission(
       RequestPermissionEvent event, Emitter<FileState> emit) async {
