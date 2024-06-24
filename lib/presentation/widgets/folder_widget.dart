@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-class FolderWidget extends StatefulWidget {
+class FolderWidget extends StatelessWidget {
   final bool? isVerticalView;
   final IconData icon;
   final Directory fileOrDirectory;
+  final int folderCount;
+  final int fileCount;
   final VoidCallback? onTap;
 
   const FolderWidget({
@@ -13,173 +15,31 @@ class FolderWidget extends StatefulWidget {
     this.isVerticalView = false,
     required this.icon,
     required this.fileOrDirectory,
+    required this.folderCount,
+    required this.fileCount,
     this.onTap,
   });
 
   @override
-  State<FolderWidget> createState() => _FolderWidgetState();
-}
-
-class _FolderWidgetState extends State<FolderWidget> {
-  late Future<Map<String, int>> _futureCount;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
-  }
-
-  @override
-  void didUpdateWidget(covariant FolderWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.fileOrDirectory.path != widget.fileOrDirectory.path) {
-      _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
-    }
-  }
-
-  Future<Map<String, int>> _getCounterFileOrDirectory(Directory dir) async {
-    int folderCount = 0;
-    int fileCount = 0;
-
-    await for (FileSystemEntity entity in dir.list()) {
-      if (entity is Directory) {
-        folderCount++;
-      } else if (entity is File &&
-          (entity.path.endsWith('.mp3') || entity.path.endsWith('.mp4'))) {
-        fileCount++;
-      }
-    }
-
-    return {'folderCount': folderCount, 'fileCount': fileCount};
-  }
-
-  @override
   Widget build(BuildContext context) {
-    String title = widget.fileOrDirectory.path.split('/').last;
+    String title = fileOrDirectory.path.split('/').last;
 
-    return FutureBuilder<Map<String, int>>(
-      future: _futureCount,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoadingUI(title);
-        } else if (snapshot.hasError) {
-          return _buildErrorUI();
-        } else {
-          int folderCount = snapshot.data!['folderCount']!;
-          int fileCount = snapshot.data!['fileCount']!;
-
-          return _buildFolderWidgetUI(title, folderCount, fileCount);
-        }
-      },
-    );
-  }
-
-  Widget _buildLoadingUI(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3.5),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(5)),
-          border:
-              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
+          border: isVerticalView! ? Border.all(color: Colors.grey) : null,
         ),
         width: 200.0,
-        child: widget.isVerticalView!
+        child: isVerticalView!
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    widget.icon,
+                    icon,
                     size: 70,
                   ),
-                  ListTile(
-                    title: Text(title),
-                    subtitle: const Row(
-                      children: [
-                        CircularProgressIndicator(),
-                      ],
-                    ),
-                    trailing: const Icon(Icons.more_vert),
-                  ),
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(widget.icon, size: 60),
-                  Expanded(
-                    child: ListTile(
-                      title: Text(title),
-                      subtitle: const Row(
-                        children: [
-                          CircularProgressIndicator(),
-                        ],
-                      ),
-                      trailing: const Icon(Icons.more_vert),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildErrorUI() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3.5),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          border:
-              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
-        ),
-        width: 200.0,
-        child: widget.isVerticalView!
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    widget.icon,
-                    size: 70,
-                  ),
-                  const ListTile(
-                    title: Text('Erro ao carregar diretório'),
-                    trailing: Icon(Icons.more_vert),
-                  ),
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(widget.icon, size: 60),
-                  const Expanded(
-                    child: ListTile(
-                      title: Text('Erro ao carregar diretório'),
-                      trailing: Icon(Icons.more_vert),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildFolderWidgetUI(
-      String title, int folderCount, int fileCount) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3.5),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          border:
-              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
-        ),
-        width: 200.0,
-        child: widget.isVerticalView!
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(widget.icon, size: 70),
                   ListTile(
                     title: Text(title),
                     subtitle: Row(
@@ -196,14 +56,14 @@ class _FolderWidgetState extends State<FolderWidget> {
                       ],
                     ),
                     trailing: const Icon(Icons.more_vert),
-                    onTap: widget.onTap,
+                    onTap: onTap,
                   ),
                 ],
               )
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(widget.icon, size: 60),
+                  Icon(icon, size: 60),
                   Expanded(
                     child: ListTile(
                       title: Text(title),
@@ -234,7 +94,7 @@ class _FolderWidgetState extends State<FolderWidget> {
                         ],
                       ),
                       trailing: const Icon(Icons.more_vert),
-                      onTap: widget.onTap,
+                      onTap: onTap,
                     ),
                   ),
                 ],
