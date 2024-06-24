@@ -29,6 +29,14 @@ class _FolderWidgetState extends State<FolderWidget> {
     _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
   }
 
+  @override
+  void didUpdateWidget(covariant FolderWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.fileOrDirectory.path != widget.fileOrDirectory.path) {
+      _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
+    }
+  }
+
   Future<Map<String, int>> _getCounterFileOrDirectory(Directory dir) async {
     int folderCount = 0;
     int fileCount = 0;
@@ -46,14 +54,6 @@ class _FolderWidgetState extends State<FolderWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant FolderWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.fileOrDirectory != widget.fileOrDirectory) {
-      _futureCount = _getCounterFileOrDirectory(widget.fileOrDirectory);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     String title = widget.fileOrDirectory.path.split('/').last;
 
@@ -61,138 +61,185 @@ class _FolderWidgetState extends State<FolderWidget> {
       future: _futureCount,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3.5),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                border: widget.isVerticalView!
-                    ? Border.all(color: Colors.grey)
-                    : null,
-              ),
-              width: 200.0,
-              child: widget.isVerticalView!
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          widget.icon,
-                          size: 70,
-                        ),
-                        ListTile(
-                          title: Text(title),
-                          subtitle: const Row(
-                            children: [
-                              CircularProgressIndicator(),
-                            ],
-                          ),
-                          trailing: const Icon(Icons.more_vert),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(widget.icon, size: 60),
-                        Expanded(
-                          child: ListTile(
-                            title: Text(title),
-                            subtitle: const Row(
-                              children: [
-                                CircularProgressIndicator(),
-                              ],
-                            ),
-                            trailing: const Icon(Icons.more_vert),
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          );
+          return _buildLoadingUI(title);
         } else if (snapshot.hasError) {
-          return const Text('Erro ao carregar diretório');
+          return _buildErrorUI();
         } else {
           int folderCount = snapshot.data!['folderCount']!;
           int fileCount = snapshot.data!['fileCount']!;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3.5),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                border: widget.isVerticalView!
-                    ? Border.all(color: Colors.grey)
-                    : null,
-              ),
-              width: 200.0,
-              child: widget.isVerticalView!
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(widget.icon, size: 70),
-                        ListTile(
-                          title: Text(title),
-                          subtitle: Row(
-                            children: [
-                              if (folderCount > 0) ...[
-                                Text('$folderCount'),
-                                const Icon(Icons.folder_outlined),
-                              ],
-                              const SizedBox(width: 7),
-                              if (fileCount > 0) ...[
-                                Text('$fileCount'),
-                                const Icon(Icons.insert_drive_file_outlined),
-                              ],
-                            ],
-                          ),
-                          trailing: const Icon(Icons.more_vert),
-                          onTap: widget.onTap,
-                        ),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(widget.icon, size: 60),
-                        Expanded(
-                          child: ListTile(
-                            title: Text(title),
-                            subtitle: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (folderCount > 0) ...[
-                                  Text('$folderCount'),
-                                  const Icon(Icons.folder_outlined, size: 15.0),
-                                ],
-                                if (fileCount > 0 && folderCount > 0)
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 3.0, horizontal: 4.0),
-                                    child: Text(
-                                      '•',
-                                      style: TextStyle(
-                                          fontSize: 10.0,
-                                          height: 0.75,
-                                          color: Colors.grey),
-                                    ),
-                                  ),
-                                if (fileCount > 0) ...[
-                                  Text('$fileCount'),
-                                  const Icon(Icons.insert_drive_file_outlined,
-                                      size: 13.0),
-                                ],
-                              ],
-                            ),
-                            trailing: const Icon(Icons.more_vert),
-                            onTap: widget.onTap,
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          );
+          return _buildFolderWidgetUI(title, folderCount, fileCount);
         }
       },
+    );
+  }
+
+  Widget _buildLoadingUI(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3.5),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          border:
+              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
+        ),
+        width: 200.0,
+        child: widget.isVerticalView!
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    widget.icon,
+                    size: 70,
+                  ),
+                  ListTile(
+                    title: Text(title),
+                    subtitle: const Row(
+                      children: [
+                        CircularProgressIndicator(),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.more_vert),
+                  ),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(widget.icon, size: 60),
+                  Expanded(
+                    child: ListTile(
+                      title: Text(title),
+                      subtitle: const Row(
+                        children: [
+                          CircularProgressIndicator(),
+                        ],
+                      ),
+                      trailing: const Icon(Icons.more_vert),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildErrorUI() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3.5),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          border:
+              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
+        ),
+        width: 200.0,
+        child: widget.isVerticalView!
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    widget.icon,
+                    size: 70,
+                  ),
+                  const ListTile(
+                    title: Text('Erro ao carregar diretório'),
+                    trailing: Icon(Icons.more_vert),
+                  ),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(widget.icon, size: 60),
+                  const Expanded(
+                    child: ListTile(
+                      title: Text('Erro ao carregar diretório'),
+                      trailing: Icon(Icons.more_vert),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildFolderWidgetUI(
+      String title, int folderCount, int fileCount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3.5),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          border:
+              widget.isVerticalView! ? Border.all(color: Colors.grey) : null,
+        ),
+        width: 200.0,
+        child: widget.isVerticalView!
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(widget.icon, size: 70),
+                  ListTile(
+                    title: Text(title),
+                    subtitle: Row(
+                      children: [
+                        if (folderCount > 0) ...[
+                          Text('$folderCount'),
+                          const Icon(Icons.folder_outlined),
+                        ],
+                        const SizedBox(width: 7),
+                        if (fileCount > 0) ...[
+                          Text('$fileCount'),
+                          const Icon(Icons.insert_drive_file_outlined),
+                        ],
+                      ],
+                    ),
+                    trailing: const Icon(Icons.more_vert),
+                    onTap: widget.onTap,
+                  ),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(widget.icon, size: 60),
+                  Expanded(
+                    child: ListTile(
+                      title: Text(title),
+                      subtitle: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (folderCount > 0) ...[
+                            Text('$folderCount'),
+                            const Icon(Icons.folder_outlined, size: 15.0),
+                          ],
+                          if (fileCount > 0 && folderCount > 0)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 3.0, horizontal: 4.0),
+                              child: Text(
+                                '•',
+                                style: TextStyle(
+                                    fontSize: 10.0,
+                                    height: 0.75,
+                                    color: Colors.grey),
+                              ),
+                            ),
+                          if (fileCount > 0) ...[
+                            Text('$fileCount'),
+                            const Icon(Icons.insert_drive_file_outlined,
+                                size: 13.0),
+                          ],
+                        ],
+                      ),
+                      trailing: const Icon(Icons.more_vert),
+                      onTap: widget.onTap,
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
