@@ -5,18 +5,29 @@ import 'package:equatable/equatable.dart';
 class DirectoryContents extends Equatable {
   final List<Directory> directories;
   final List<File> files;
-  final Map<Directory, int> folderCountMap;
-  final Map<Directory, int> fileCountMap;
+  final Map<Directory, int>? folderCountMap;
+  final Map<Directory, int>? fileCountMap;
 
-  const DirectoryContents(
-    this.directories,
-    this.files,
+  const DirectoryContents({
+    required this.directories,
+    required this.files,
     this.folderCountMap,
     this.fileCountMap,
-  );
+  });
+
+  int get folderCount => directories.length;
+  int get fileCount => files.length;
+
+  int getFolderCountForDirectory(Directory directory) {
+    return folderCountMap?[directory] ?? 0;
+  }
+
+  int getFileCountForDirectory(Directory directory) {
+    return fileCountMap?[directory] ?? 0;
+  }
 
   @override
-  List<Object> get props => [directories, files, folderCountMap, fileCountMap];
+  List<Object?> get props => [directories, files, folderCountMap, fileCountMap];
 
   @override
   String toString() {

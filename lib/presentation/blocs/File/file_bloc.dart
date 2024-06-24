@@ -20,18 +20,19 @@ class FileBloc extends Bloc<FileEvent, FileState> {
   }) : super(FileInitial()) {
     on<LoadDirectoryContentsEvent>(_onLoadDirectoryContents);
     on<RequestPermissionEvent>(_onRequestPermission);
+    on<FileLoadedEvent>(_onFileLoaded);
   }
 
-FutureOr<void> _onLoadDirectoryContents(
-    LoadDirectoryContentsEvent event, Emitter<FileState> emit) async {
-  emit(FileLoading());
-  try {
-    final directoryContents = await loadDirectoryContents(event.directory);
-    emit(FileLoaded(directoryContents));
-  } catch (_) {
-    emit(const FileError('Error ao carregar diretorio.'));
+  FutureOr<void> _onLoadDirectoryContents(
+      LoadDirectoryContentsEvent event, Emitter<FileState> emit) async {
+    emit(FileLoading());
+    try {
+      final directoryContents = await loadDirectoryContents(event.directory);
+      emit(FileLoaded(directoryContents));
+    } catch (_) {
+      emit(const FileError('Error ao carregar diretorio.'));
+    }
   }
-}
 
   FutureOr<void> _onRequestPermission(
       RequestPermissionEvent event, Emitter<FileState> emit) async {
@@ -41,5 +42,9 @@ FutureOr<void> _onLoadDirectoryContents(
     } else {
       emit(PermissionDenied());
     }
+  }
+
+  void _onFileLoaded(FileLoadedEvent event, Emitter<FileState> emit) {
+    emit(FileLoaded(event.contents));
   }
 }

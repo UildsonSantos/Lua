@@ -17,3 +17,12 @@ final class LoadDirectoryContentsEvent extends FileEvent {
 }
 
 final class RequestPermissionEvent extends FileEvent {}
+
+final class FileLoadedEvent extends FileEvent {
+  final DirectoryContents contents;
+
+  const FileLoadedEvent(this.contents);
+
+  @override
+  List<Object> get props => [contents];
+}

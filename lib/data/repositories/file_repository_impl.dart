@@ -24,6 +24,8 @@ class FileRepositoryImpl implements FileRepository {
   Future<DirectoryContents> listFilesAndDirectories(Directory directory) async {
     List<Directory> directories = [];
     List<File> files = [];
+    Map<Directory, int> folderCountMap = {};
+    Map<Directory, int> fileCountMap = {};
 
     if (directory.existsSync()) {
       await for (FileSystemEntity entity in directory.list()) {
@@ -36,18 +38,21 @@ class FileRepositoryImpl implements FileRepository {
           files.add(entity);
         }
       }
+
+     
+      for (var dir in directories) {
+        var contents = await listFilesAndDirectories(dir);
+        folderCountMap[dir] = contents.folderCount;
+        fileCountMap[dir] = contents.fileCount;
+      }
     }
 
-    Map<Directory, int> folderCountMap = {};
-    Map<Directory, int> fileCountMap = {};
-
-    for (Directory dir in directories) {
-      DirectoryContents subdirContents = await listFilesAndDirectories(dir);
-      folderCountMap[dir] = subdirContents.directories.length;
-      fileCountMap[dir] = subdirContents.files.length;
-    }
-
-    return DirectoryContents(directories, files, folderCountMap, fileCountMap);
+    return DirectoryContents(
+      directories: directories,
+      files: files,
+      folderCountMap: folderCountMap.isNotEmpty ? folderCountMap : null,
+      fileCountMap: fileCountMap.isNotEmpty ? fileCountMap : null,
+    );
   }
 
   @override
