@@ -12,12 +12,12 @@ final class FileInitial extends FileState {}
 final class FileLoading extends FileState {}
 
 final class FileLoaded extends FileState {
-  final DirectoryContents directoryContents;
+  final DirectoryContents directory;
 
-  const FileLoaded(this.directoryContents);
+  const FileLoaded(this.directory);
 
   @override
-  List<Object> get props => [directoryContents];
+  List<Object> get props => [directory];
 }
 
 final class FileError extends FileState {

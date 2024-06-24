@@ -35,7 +35,6 @@ class FileExplorerPageView extends StatefulWidget {
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
   final List<String> _directoryNames = ['Navigator'];
-  final Set<FileSystemEntity> _selectedSongs = {};
   bool _showButton = true;
   late ScrollController _scrollController;
 
@@ -134,8 +133,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
           if (state is FileLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is FileLoaded) {
-            final directories = state.files.whereType<Directory>().toList();
-            final files = state.files.whereType<File>().toList();
+           final directories = state.directory.directories;
+            final files = state.directory.files;
             final sortedItems = [...directories, ...files];
             return Stack(
               children: [
