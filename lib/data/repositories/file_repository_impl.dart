@@ -31,7 +31,8 @@ class FileRepositoryImpl implements FileRepository {
             !entity.path.split('/').last.startsWith('.') &&
             !entity.path.contains('/Android/')) {
           directories.add(entity);
-        } else if (entity is File) {
+        } else if (entity is File &&
+            (entity.path.endsWith('.mp3') || entity.path.endsWith('.mp4'))) {
           files.add(entity);
         }
       }
