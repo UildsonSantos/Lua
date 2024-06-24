@@ -24,9 +24,8 @@ class FileExplorerPage extends StatelessWidget {
     );
   }
 }
-
 class FileExplorerPageView extends StatefulWidget {
-  const FileExplorerPageView({super.key});
+  const FileExplorerPageView({Key? key});
 
   @override
   State<FileExplorerPageView> createState() => _FileExplorerPageViewState();
@@ -100,43 +99,46 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (int i = 0; i < _directoryNames.length; i++)
-                GestureDetector(
-                  onTap: () => _navigateToDirectory(i),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _directoryNames[i],
-                          style: const TextStyle(fontSize: 15.0),
+    return BlocBuilder<FileBloc, FileState>(
+      builder: (context, state) {
+        if (state is FileLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is FileLoaded) {
+          final directories = state.directory.directories;
+          final files = state.directory.files;
+          final sortedItems = [...directories, ...files];
+          final folderCount = state.directory.folderCount;
+          final fileCount = state.directory.fileCount;
+
+          return Scaffold(
+            appBar: AppBar(
+              title: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (int i = 0; i < _directoryNames.length; i++)
+                      GestureDetector(
+                        onTap: () => _navigateToDirectory(i),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _directoryNames[i],
+                                style: const TextStyle(fontSize: 15.0),
+                              ),
+                              if (i < _directoryNames.length - 1)
+                                const Icon(Icons.chevron_right, size: 24.0),
+                            ],
+                          ),
                         ),
-                        if (i < _directoryNames.length - 1)
-                          const Icon(Icons.chevron_right, size: 24.0),
-                      ],
-                    ),
-                  ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
-        ),
-      ),
-      body: BlocBuilder<FileBloc, FileState>(
-        builder: (context, state) {
-          if (state is FileLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is FileLoaded) {
-           final directories = state.directory.directories;
-            final files = state.directory.files;
-            final sortedItems = [...directories, ...files];
-            return Stack(
+              ),
+            ),
+            body: Stack(
               children: [
                 ListView.builder(
                   controller: _scrollController,
@@ -147,10 +149,11 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                       return FolderWidget(
                         icon: Icons.folder,
                         fileOrDirectory: fileOrDirectory,
+                        folderCount: folderCount,
+                        fileCount: fileCount,
                         onTap: () => _handleFileSelection(fileOrDirectory),
                       );
-                    } else if (fileOrDirectory.path.endsWith('.mp3') ||
-                        fileOrDirectory.path.endsWith('.mp4')) {
+                    } else if (fileOrDirectory.path.endsWith('.mp3') || fileOrDirectory.path.endsWith('.mp4')) {
                       return ListTile(
                         leading: const Icon(size: 30, Icons.audiotrack_rounded),
                         title: Text(fileOrDirectory.path.split('/').last),
@@ -158,8 +161,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                       );
                     } else {
                       return ListTile(
-                        leading:
-                            const Icon(size: 30, Icons.sd_card_alert_outlined),
+                        leading: const Icon(size: 30, Icons.sd_card_alert_outlined),
                         title: Text(fileOrDirectory.path.split('/').last),
                         onTap: () => _handleFileSelection(fileOrDirectory),
                       );
@@ -183,28 +185,27 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   ),
                 ),
               ],
-            );
-          } else if (state is PermissionDenied) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Permissão de acesso negada.'),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<FileBloc>().add(RequestPermissionEvent());
-                    },
-                    child: const Icon(Icons.refresh_rounded),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return const Center(
-                child: Text('Nenhum arquivo de áudio encontrado'));
-          }
-        },
-      ),
+            ),
+          );
+        } else if (state is PermissionDenied) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Permissão de acesso negada.'),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<FileBloc>().add(RequestPermissionEvent());
+                  },
+                  child: const Icon(Icons.refresh_rounded),
+                ),
+              ],
+            ),
+          );
+        } else {
+          return const Center(child: Text('Nenhum arquivo de áudio encontrado'));
+        }
+      },
     );
   }
 }
