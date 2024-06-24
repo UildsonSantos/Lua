@@ -24,8 +24,9 @@ class FileExplorerPage extends StatelessWidget {
     );
   }
 }
+
 class FileExplorerPageView extends StatefulWidget {
-  const FileExplorerPageView({Key? key});
+  const FileExplorerPageView({super.key});
 
   @override
   State<FileExplorerPageView> createState() => _FileExplorerPageViewState();
@@ -106,9 +107,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
         } else if (state is FileLoaded) {
           final directories = state.directory.directories;
           final files = state.directory.files;
-          final sortedItems = [...directories, ...files];
-          final folderCount = state.directory.folderCount;
-          final fileCount = state.directory.fileCount;
+          final folderCountMap = state.directory.folderCountMap;
+          final fileCountMap = state.directory.fileCountMap;
 
           return Scaffold(
             appBar: AppBar(
@@ -142,29 +142,36 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
               children: [
                 ListView.builder(
                   controller: _scrollController,
-                  itemCount: sortedItems.length,
+                  itemCount: directories.length + files.length,
                   itemBuilder: (context, index) {
-                    final fileOrDirectory = sortedItems[index];
-                    if (fileOrDirectory is Directory) {
+                    if (index < directories.length) {
+                      final directory = directories[index];
                       return FolderWidget(
                         icon: Icons.folder,
-                        fileOrDirectory: fileOrDirectory,
-                        folderCount: folderCount,
-                        fileCount: fileCount,
-                        onTap: () => _handleFileSelection(fileOrDirectory),
-                      );
-                    } else if (fileOrDirectory.path.endsWith('.mp3') || fileOrDirectory.path.endsWith('.mp4')) {
-                      return ListTile(
-                        leading: const Icon(size: 30, Icons.audiotrack_rounded),
-                        title: Text(fileOrDirectory.path.split('/').last),
-                        onTap: () => _handleFileSelection(fileOrDirectory),
+                        fileOrDirectory: directory,
+                        folderCount: folderCountMap[directory] ?? 0,
+                        fileCount: fileCountMap[directory] ?? 0,
+                        onTap: () => _handleFileSelection(directory),
                       );
                     } else {
-                      return ListTile(
-                        leading: const Icon(size: 30, Icons.sd_card_alert_outlined),
-                        title: Text(fileOrDirectory.path.split('/').last),
-                        onTap: () => _handleFileSelection(fileOrDirectory),
-                      );
+                      final fileIndex = index - directories.length;
+                      final file = files[fileIndex];
+                      if (file.path.endsWith('.mp3') ||
+                          file.path.endsWith('.mp4')) {
+                        return ListTile(
+                          leading:
+                              const Icon(size: 30, Icons.audiotrack_rounded),
+                          title: Text(file.path.split('/').last),
+                          onTap: () => _handleFileSelection(file),
+                        );
+                      } else {
+                        return ListTile(
+                          leading: const Icon(
+                              size: 30, Icons.sd_card_alert_outlined),
+                          title: Text(file.path.split('/').last),
+                          onTap: () => _handleFileSelection(file),
+                        );
+                      }
                     }
                   },
                 ),
@@ -203,7 +210,8 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
             ),
           );
         } else {
-          return const Center(child: Text('Nenhum arquivo de áudio encontrado'));
+          return const Center(
+              child: Text('Nenhum arquivo de áudio encontrado'));
         }
       },
     );

@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -6,16 +5,22 @@ import 'package:equatable/equatable.dart';
 class DirectoryContents extends Equatable {
   final List<Directory> directories;
   final List<File> files;
-  final int folderCount;
-  final int fileCount;
+  final Map<Directory, int> folderCountMap;
+  final Map<Directory, int> fileCountMap;
 
   const DirectoryContents(
     this.directories,
     this.files,
-    this.folderCount,
-    this.fileCount,
+    this.folderCountMap,
+    this.fileCountMap,
   );
 
   @override
-  List<Object> get props => [directories, files, folderCount, fileCount];
+  List<Object> get props => [directories, files, folderCountMap, fileCountMap];
+
+  @override
+  String toString() {
+    return 'DirectoryContents(directories: $directories, files: $files, '
+        'folderCountMap: $folderCountMap, fileCountMap: $fileCountMap)';
+  }
 }
