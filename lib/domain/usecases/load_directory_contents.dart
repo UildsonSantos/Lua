@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
 class LoadDirectoryContents {
@@ -7,7 +8,7 @@ class LoadDirectoryContents {
 
   LoadDirectoryContents(this.repository);
 
-  Future<List<FileSystemEntity>> call(Directory directory) {
+  Future<DirectoryContents> call(Directory directory) {
     return repository.listFilesAndDirectories(directory);
   }
 }
