@@ -58,7 +58,7 @@ class DatabaseHelper {
     ''');
     await db.execute('''
       CREATE TABLE directories (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         path TEXT NOT NULL,
         folderCount INTEGER NOT NULL,
         fileCount INTEGER NOT NULL
@@ -67,9 +67,9 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE files (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         directoryId INTEGER NOT NULL,
-        path TEXT NOT NULL,
+        path TEXT NOT NULL NOT NULL,
         FOREIGN KEY (directoryId) REFERENCES directories (id)
       )
     ''');
@@ -169,7 +169,7 @@ class DatabaseHelper {
     await db.delete('playlist_songs', where: 'playlistId = ?', whereArgs: [id]);
   }
 
-  Future<void> insertDirectory(DirectoryModel directory) async {
+  Future<void> insertDirectoryModel(DirectoryModel directory) async {
     final db = await database;
     await db.insert(
       'directories',
@@ -178,7 +178,7 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> insertFile(FileModel file) async {
+  Future<void> insertFileModel(FileModel file) async {
     final db = await database;
     await db.insert(
       'files',
@@ -187,32 +187,54 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<DirectoryModel>> getAllDirectories() async {
+  Future<List<DirectoryModel>> getAllDirectories(
+      {int limit = 10, int offset = 0}) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('directories');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'directories',
+      limit: limit,
+      offset: offset,
+    );
+
     return List.generate(maps.length, (i) {
-      return DirectoryModel(
-        id: maps[i]['id'],
-        path: maps[i]['path'],
-        folderCount: maps[i]['folderCount'],
-        fileCount: maps[i]['fileCount'],
-      );
+      return DirectoryModel.fromMap(maps[i]);
     });
   }
 
-  Future<List<FileModel>> getAllFilesByDirectoryId(int directoryId) async {
+  Future<List<FileModel>> getAllFilesByDirectoryId(int directoryId,
+      {int limit = 10, int offset = 0}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'files',
       where: 'directoryId = ?',
       whereArgs: [directoryId],
+      limit: limit,
+      offset: offset,
     );
+
     return List.generate(maps.length, (i) {
-      return FileModel(
-        id: maps[i]['id'],
-        directoryId: maps[i]['directoryId'],
-        path: maps[i]['path'],
-      );
+      return FileModel.fromMap(maps[i]);
     });
+  }
+
+  Future<DirectoryModel?> getDirectoryByPath(String path) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'directories',
+        where: 'path = ?',
+        whereArgs: [path],
+      );
+      print('maps :$maps');
+      if (maps.isNotEmpty) {
+        // Se encontrou um resultado, retorna o DirectoryModel correspondente
+        return DirectoryModel.fromMap(maps.first);
+      }
+
+      // Se não encontrou nenhum resultado, retorna null ou lança uma exceção
+      return null;
+    } catch (e) {
+      throw Exception('Error getting directory by path: $e');
+    }
   }
 }
