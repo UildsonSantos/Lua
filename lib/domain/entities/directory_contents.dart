@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:lua/data/models/models.dart';
 
 class DirectoryContents extends Equatable {
-  final List<Directory> directories;
-  final List<File> files;
+  final List<DirectoryModel> directories;
+  final List<FileModel> files;
+
   final Map<Directory, int>? folderCountMap;
   final Map<Directory, int>? fileCountMap;
 
