@@ -7,13 +7,15 @@ sealed class FileEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class LoadDirectoryContentsEvent extends FileEvent {
-  final Directory directory;
+class LoadDirectoryContentsEvent extends FileEvent {
+  final DirectoryModel directory;
+  final int limit;
+  final int offset;
 
-  const LoadDirectoryContentsEvent(this.directory);
+  const LoadDirectoryContentsEvent(this.directory, {this.limit = 10, this.offset = 0});
 
   @override
-  List<Object> get props => [directory];
+  List<Object> get props => [directory, limit, offset];
 }
 
 final class RequestPermissionEvent extends FileEvent {}

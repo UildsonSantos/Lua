@@ -1,10 +1,7 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/entities/entities.dart';
-
 import 'package:lua/domain/usecases/usecases.dart';
 
 part 'file_event.dart';
@@ -23,18 +20,48 @@ class FileBloc extends Bloc<FileEvent, FileState> {
     on<FileLoadedEvent>(_onFileLoaded);
   }
 
-  FutureOr<void> _onLoadDirectoryContents(
+  Future<void> _onLoadDirectoryContents(
       LoadDirectoryContentsEvent event, Emitter<FileState> emit) async {
-    emit(FileLoading());
+    final currentState = state;
+    List<DirectoryModel> directories = [];
+    List<FileModel> files = [];
+    bool hasReachedMax = false;
+
+    if (currentState is FileLoaded) {
+      directories = currentState.directory.directories;
+      files = currentState.directory.files;
+      hasReachedMax = currentState.hasReachedMax;
+    }
+
     try {
-      final directoryContents = await loadDirectoryContents(event.directory);
-      emit(FileLoaded(directoryContents));
-    } catch (_) {
-      emit(const FileError('Error ao carregar diretorio.'));
+      final result = await loadDirectoryContents(
+        event.directory,
+        event.limit,
+        event.offset,
+      );
+
+      result.fold(
+        (failure) => emit(FileLoadError(failure.message)),
+        (directoryContents) {
+          directories.addAll(directoryContents.directories);
+          files.addAll(directoryContents.files);
+          hasReachedMax = directoryContents.directories.isEmpty &&
+              directoryContents.files.isEmpty;
+          emit(FileLoaded(
+            directory: DirectoryContents(
+              directories: directories,
+              files: files,
+            ),
+            hasReachedMax: hasReachedMax,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(FileLoadError('Failed to load directory contents: $e'));
     }
   }
 
-  FutureOr<void> _onRequestPermission(
+  Future<void> _onRequestPermission(
       RequestPermissionEvent event, Emitter<FileState> emit) async {
     final hasPermission = await requestPermission();
     if (hasPermission) {
@@ -45,6 +72,6 @@ class FileBloc extends Bloc<FileEvent, FileState> {
   }
 
   void _onFileLoaded(FileLoadedEvent event, Emitter<FileState> emit) {
-    emit(FileLoaded(event.contents));
+    emit(FileLoaded(directory: event.contents));
   }
 }

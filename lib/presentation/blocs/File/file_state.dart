@@ -11,13 +11,14 @@ final class FileInitial extends FileState {}
 
 final class FileLoading extends FileState {}
 
-final class FileLoaded extends FileState {
+class FileLoaded extends FileState {
   final DirectoryContents directory;
+  final bool hasReachedMax;
 
-  const FileLoaded(this.directory);
+  const FileLoaded({required this.directory, this.hasReachedMax = false});
 
   @override
-  List<Object> get props => [directory];
+  List<Object> get props => [directory, hasReachedMax];
 }
 
 final class FileError extends FileState {
@@ -32,3 +33,12 @@ final class FileError extends FileState {
 final class PermissionGranted extends FileState {}
 
 final class PermissionDenied extends FileState {}
+
+class FileLoadError extends FileState {
+  final String message;
+
+  const FileLoadError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
