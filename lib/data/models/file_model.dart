@@ -1,10 +1,10 @@
 class FileModel {
-  final int id;
+  final int? id;
   final int directoryId;
   final String path;
 
   FileModel({
-    required this.id,
+    this.id,
     required this.directoryId,
     required this.path,
   });
@@ -15,5 +15,13 @@ class FileModel {
       'directoryId': directoryId,
       'path': path,
     };
+  }
+
+  factory FileModel.fromMap(Map<String, dynamic> map) {
+    return FileModel(
+      id: map['id'],
+      path: map['name'],
+      directoryId: map['directoryId'],
+    );
   }
 }
