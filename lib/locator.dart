@@ -25,8 +25,8 @@ Future<void> init() async {
       () => PlaylistRepositoryImpl(sl<LocalDataSource>()));
   sl.registerLazySingleton<SongRepository>(() =>
       SongRepositoryImpl(sl<LocalDataSource>(), sl<MusicFileDataSource>()));
-  sl.registerLazySingleton<FileRepository>(
-      () => FileRepositoryImpl(sl<MusicFileDataSource>()));
+  sl.registerLazySingleton<FileRepository>(() =>
+      FileRepositoryImpl(sl<MusicFileDataSource>(), sl<LocalDataSource>()));
 
   // UseCases
   sl.registerLazySingleton<CreatePlaylist>(
