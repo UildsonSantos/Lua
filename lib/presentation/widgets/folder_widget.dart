@@ -1,13 +1,12 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lua/data/models/directory_models.dart';
 
 class FolderWidget extends StatelessWidget {
   final bool? isVerticalView;
   final IconData icon;
-  final Directory fileOrDirectory;
-  final int folderCount;
-  final int fileCount;
+  final DirectoryModel fileOrDirectory;
+ 
   final VoidCallback? onTap;
 
   const FolderWidget({
@@ -15,8 +14,7 @@ class FolderWidget extends StatelessWidget {
     this.isVerticalView = false,
     required this.icon,
     required this.fileOrDirectory,
-    required this.folderCount,
-    required this.fileCount,
+    
     this.onTap,
   });
 
@@ -44,13 +42,13 @@ class FolderWidget extends StatelessWidget {
                     title: Text(title),
                     subtitle: Row(
                       children: [
-                        if (folderCount > 0) ...[
-                          Text('$folderCount'),
+                        if (fileOrDirectory.folderCount > 0) ...[
+                          Text('${fileOrDirectory.folderCount}'),
                           const Icon(Icons.folder_outlined),
                         ],
                         const SizedBox(width: 7),
-                        if (fileCount > 0) ...[
-                          Text('$fileCount'),
+                        if (fileOrDirectory.fileCount > 0) ...[
+                          Text('${fileOrDirectory.fileCount}'),
                           const Icon(Icons.insert_drive_file_outlined),
                         ],
                       ],
@@ -70,11 +68,11 @@ class FolderWidget extends StatelessWidget {
                       subtitle: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (folderCount > 0) ...[
-                            Text('$folderCount'),
+                           if (fileOrDirectory.folderCount > 0) ...[
+                          Text('${fileOrDirectory.folderCount}'),
                             const Icon(Icons.folder_outlined, size: 15.0),
                           ],
-                          if (fileCount > 0 && folderCount > 0)
+                          if (fileOrDirectory.fileCount > 0 && fileOrDirectory.folderCount > 0)
                             const Padding(
                               padding: EdgeInsets.symmetric(
                                   vertical: 3.0, horizontal: 4.0),
@@ -86,8 +84,8 @@ class FolderWidget extends StatelessWidget {
                                     color: Colors.grey),
                               ),
                             ),
-                          if (fileCount > 0) ...[
-                            Text('$fileCount'),
+                          if (fileOrDirectory.fileCount > 0) ...[
+                          Text('${fileOrDirectory.fileCount}'),
                             const Icon(Icons.insert_drive_file_outlined,
                                 size: 13.0),
                           ],
