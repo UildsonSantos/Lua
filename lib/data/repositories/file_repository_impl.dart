@@ -1,13 +1,18 @@
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
+import 'package:lua/core/error/error.dart';
+import 'package:lua/data/datasource/datasource.dart';
+import 'package:lua/data/models/models.dart';
 import 'package:lua/data/sources/souces.dart';
 import 'package:lua/domain/entities/directory_contents.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
 class FileRepositoryImpl implements FileRepository {
   final MusicFileDataSource musicFileDataSource;
+  final LocalDataSource localDataSource;
 
-  FileRepositoryImpl(this.musicFileDataSource);
+  FileRepositoryImpl(this.musicFileDataSource, this.localDataSource);
 
   @override
   Future<List<FileSystemEntity>> listAllFileSystem(Directory directory) async {
@@ -21,38 +26,21 @@ class FileRepositoryImpl implements FileRepository {
   }
 
   @override
-  Future<DirectoryContents> listFilesAndDirectories(Directory directory) async {
-    List<Directory> directories = [];
-    List<File> files = [];
-    Map<Directory, int> folderCountMap = {};
-    Map<Directory, int> fileCountMap = {};
-
-    if (directory.existsSync()) {
-      await for (FileSystemEntity entity in directory.list()) {
-        if (entity is Directory &&
-            !entity.path.split('/').last.startsWith('.') &&
-            !entity.path.contains('/Android/')) {
-          directories.add(entity);
-        } else if (entity is File &&
-            (entity.path.endsWith('.mp3') || entity.path.endsWith('.mp4'))) {
-          files.add(entity);
-        }
-      }
-
-     
-      for (var dir in directories) {
-        var contents = await listFilesAndDirectories(dir);
-        folderCountMap[dir] = contents.folderCount;
-        fileCountMap[dir] = contents.fileCount;
-      }
+  Future<Either<Failure, DirectoryContents>> listFilesAndDirectories(
+      DirectoryModel directory,
+      {int limit = 10,
+      int offset = 0}) async {
+    try {
+      final directories =
+          await localDataSource.getAllDirectories(limit: limit, offset: offset);
+      final files = await localDataSource.getAllFilesByDirectoryId(
+          directory.id!,
+          limit: limit,
+          offset: offset);
+      return Right(DirectoryContents(directories: directories, files: files));
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
     }
-
-    return DirectoryContents(
-      directories: directories,
-      files: files,
-      folderCountMap: folderCountMap.isNotEmpty ? folderCountMap : null,
-      fileCountMap: fileCountMap.isNotEmpty ? fileCountMap : null,
-    );
   }
 
   @override
