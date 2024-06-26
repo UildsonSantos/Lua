@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class FolderWidget extends StatelessWidget {
   final bool? isVerticalView;
   final IconData icon;
-  final Directory fileOrDirectory;
+  final String fileOrDirectory;
   final int folderCount;
   final int fileCount;
   final VoidCallback? onTap;
@@ -22,7 +20,7 @@ class FolderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String title = fileOrDirectory.path.split('/').last;
+    String title = fileOrDirectory.split('/').last;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3.5),
