@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:lua/domain/entities/entities.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 
 class LoadDirectoryContents {
@@ -8,7 +5,7 @@ class LoadDirectoryContents {
 
   LoadDirectoryContents(this.repository);
 
-  Future<DirectoryContents> call(Directory directory) {
-    return repository.listFilesAndDirectories(directory);
+  Future<Map<String, List<dynamic>>> call(String dirPath) async {
+    return await repository.listDirectoriesAndFiles(dirPath);
   }
 }
