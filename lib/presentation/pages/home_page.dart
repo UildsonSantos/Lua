@@ -63,19 +63,25 @@ class HomePageState extends State<HomePage> {
                   _isVerticalView ? Axis.horizontal : Axis.vertical,
               children: [
                 FolderWidget(
+                  fileCount: 10,
+                  folderCount: 7,
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  fileOrDirectory: Directory('/storage/emulated/0/Movies'),
+                  fileOrDirectory: '/storage/emulated/0/Movies',
                 ),
                 FolderWidget(
+                  fileCount: 10,
+                  folderCount: 7,
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  fileOrDirectory: Directory('/storage/emulated/0/Music'),
+                  fileOrDirectory: '/storage/emulated/0/Music',
                 ),
                 FolderWidget(
+                  fileCount: 10,
+                  folderCount: 7,
                   isVerticalView: _isVerticalView,
                   icon: Icons.folder,
-                  fileOrDirectory: Directory('/storage/emulated/0/Documents'),
+                  fileOrDirectory: '/storage/emulated/0/Documents',
                 ),
               ],
             ),
