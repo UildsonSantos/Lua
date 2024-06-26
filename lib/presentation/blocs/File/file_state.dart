@@ -12,12 +12,11 @@ final class FileInitial extends FileState {}
 final class FileLoading extends FileState {}
 
 final class FileLoaded extends FileState {
-  final DirectoryContents directory;
+  final Map<String, List<dynamic>> directoryContents;
 
-  const FileLoaded(this.directory);
-
+  const FileLoaded(this.directoryContents);
   @override
-  List<Object> get props => [directory];
+  List<Object> get props => [directoryContents];
 }
 
 final class FileError extends FileState {

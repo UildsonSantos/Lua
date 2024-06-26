@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lua/domain/entities/entities.dart';
 
 import 'package:lua/domain/usecases/usecases.dart';
 
@@ -20,7 +18,6 @@ class FileBloc extends Bloc<FileEvent, FileState> {
   }) : super(FileInitial()) {
     on<LoadDirectoryContentsEvent>(_onLoadDirectoryContents);
     on<RequestPermissionEvent>(_onRequestPermission);
-    on<FileLoadedEvent>(_onFileLoaded);
   }
 
   FutureOr<void> _onLoadDirectoryContents(
@@ -42,9 +39,5 @@ class FileBloc extends Bloc<FileEvent, FileState> {
     } else {
       emit(PermissionDenied());
     }
-  }
-
-  void _onFileLoaded(FileLoadedEvent event, Emitter<FileState> emit) {
-    emit(FileLoaded(event.contents));
   }
 }

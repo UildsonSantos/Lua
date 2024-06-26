@@ -8,7 +8,7 @@ sealed class FileEvent extends Equatable {
 }
 
 final class LoadDirectoryContentsEvent extends FileEvent {
-  final Directory directory;
+  final String directory;
 
   const LoadDirectoryContentsEvent(this.directory);
 
@@ -17,12 +17,3 @@ final class LoadDirectoryContentsEvent extends FileEvent {
 }
 
 final class RequestPermissionEvent extends FileEvent {}
-
-final class FileLoadedEvent extends FileEvent {
-  final DirectoryContents contents;
-
-  const FileLoadedEvent(this.contents);
-
-  @override
-  List<Object> get props => [contents];
-}
