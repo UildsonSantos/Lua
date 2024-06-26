@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lua/domain/entities/entities.dart';
+import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/repositories/repositories.dart';
 import 'package:lua/domain/usecases/usecases.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
@@ -34,23 +34,19 @@ class FileExplorerPageView extends StatefulWidget {
 }
 
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
-  final List<Directory> _directoryStack = [Directory('/storage/emulated/0')];
-  List<String> _directoryNames = ['Navigator'];
+  final List<String> _directoryStack = ['/storage/emulated/0'];
+  final List<String> _directoryNames = ['Navigator'];
   bool _showButton = true;
   late ScrollController _scrollController;
-
-  // Cache para armazenar os resultados já calculados
-  final Map<String, DirectoryContents> _cache = {};
 
   @override
   void initState() {
     super.initState();
-    _updateDirectoryNames();
     context.read<FileBloc>().stream.listen((state) {
       if (state is PermissionGranted) {
         context
             .read<FileBloc>()
-            .add(LoadDirectoryContentsEvent(Directory('/storage/emulated/0')));
+            .add(const LoadDirectoryContentsEvent('/storage/emulated/0'));
       }
     });
     _scrollController = ScrollController();
@@ -59,7 +55,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Dispose o ScrollController ao finalizar
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -79,16 +75,11 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     }
   }
 
-  void _updateDirectoryNames() {
-    _directoryNames =
-        _directoryStack.map((dir) => dir.path.split('/').last).toList();
-  }
-
   void _navigateToDirectory(int index) {
     if (index < _directoryStack.length) {
       setState(() {
         _directoryStack.removeRange(index + 1, _directoryStack.length);
-        _updateDirectoryNames();
+        _directoryNames.removeRange(index + 1, _directoryNames.length);
       });
       context
           .read<FileBloc>()
@@ -96,62 +87,28 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     }
   }
 
-  void _handleFileSelection(FileSystemEntity fileOrDirectory) {
-    if (fileOrDirectory is Directory) {
-      setState(() {
-        _directoryStack.add(fileOrDirectory);
-        _updateDirectoryNames();
-      });
-      context.read<FileBloc>().add(LoadDirectoryContentsEvent(fileOrDirectory));
-    } else {
-      //TODO: Lógica de seleção de arquivos
+  void _handleFileSelection(String fileOrDirectory) async {
+    final entityType = await FileSystemEntity.type(fileOrDirectory);
+    switch (entityType) {
+      case FileSystemEntityType.directory:
+        setState(() {
+          _directoryStack.add(fileOrDirectory);
+          _directoryNames.add(fileOrDirectory.split('/').last);
+        });
+        context
+            .read<FileBloc>()
+            .add(LoadDirectoryContentsEvent(fileOrDirectory));
+        break;
+      case FileSystemEntityType.file:
+        //TODO: Lógica de seleção de arquivos
+        break;
+
+      case FileSystemEntityType.link:
+      case FileSystemEntityType.notFound:
+      case FileSystemEntityType.pipe:
+      case FileSystemEntityType.unixDomainSock:
+        break;
     }
-  }
-
-  Future<DirectoryContents> listFilesAndDirectories(Directory directory) async {
-    if (_cache.containsKey(directory.path)) {
-      return _cache[directory.path]!;
-    }
-
-    List<Directory> directories = [];
-    List<File> files = [];
-    Map<Directory, int> folderCountMap = {};
-    Map<Directory, int> fileCountMap = {};
-
-    if (directory.existsSync()) {
-      await for (FileSystemEntity entity in directory.list()) {
-        if (entity is Directory &&
-            !entity.path.split('/').last.startsWith('.') &&
-            !entity.path.contains('/Android/')) {
-          directories.add(entity);
-        } else if (entity is File &&
-            (entity.path.endsWith('.mp3') || entity.path.endsWith('.mp4'))) {
-          files.add(entity);
-        }
-      }
-
-      // Ordenando diretórios e arquivos
-      directories.sort((a, b) => a.path.compareTo(b.path));
-      files.sort((a, b) => a.path.compareTo(b.path));
-
-      // Preenchendo folderCountMap e fileCountMap
-      for (var dir in directories) {
-        var contents = await listFilesAndDirectories(dir);
-        folderCountMap[dir] = contents.folderCount;
-        fileCountMap[dir] = contents.fileCount;
-      }
-    }
-
-    var contents = DirectoryContents(
-      directories: directories,
-      files: files,
-      folderCountMap: folderCountMap.isNotEmpty ? folderCountMap : null,
-      fileCountMap: fileCountMap.isNotEmpty ? fileCountMap : null,
-    );
-
-    _cache[directory.path] = contents; // Armazenando no cache
-
-    return contents;
   }
 
   @override
@@ -159,9 +116,12 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     return BlocBuilder<FileBloc, FileState>(
       builder: (context, state) {
         if (state is FileLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(body: Center(child: SizedBox()));
         } else if (state is FileLoaded) {
-          final contents = state.directory;
+          final directories = state.directoryContents['directories'];
+          final audiFiles = state.directoryContents['files'];
+
+          final contents = [...directories!, ...audiFiles!];
 
           return Scaffold(
             appBar: AppBar(
@@ -195,29 +155,22 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
               children: [
                 ListView.builder(
                   controller: _scrollController,
-                  itemCount:
-                      contents.directories.length + contents.files.length,
+                  itemCount: contents.length,
                   itemBuilder: (context, index) {
-                    final item = index < contents.directories.length
-                        ? contents.directories[index]
-                        : contents.files[index - contents.directories.length];
-
-                    if (item is Directory) {
+                    if (contents[index] is DirectoryInfo) {
                       return FolderWidget(
                         icon: Icons.folder,
-                        fileOrDirectory: item,
-                        folderCount: contents.getFolderCountForDirectory(item),
-                        fileCount: contents.getFileCountForDirectory(item),
-                        onTap: () => _handleFileSelection(item),
-                      );
-                    } else if (item is File) {
-                      return ListTile(
-                        leading: const Icon(size: 30, Icons.audiotrack_rounded),
-                        title: Text(item.path.split('/').last),
-                        onTap: () => _handleFileSelection(item),
+                        fileOrDirectory: contents[index].path,
+                        folderCount: contents[index].folderCount,
+                        fileCount: contents[index].fileCount,
+                        onTap: () => _handleFileSelection(contents[index].path),
                       );
                     } else {
-                      return const SizedBox(); // Caso inesperado
+                      return ListTile(
+                        leading: const Icon(size: 30, Icons.audiotrack_rounded),
+                        title: Text(contents[index].path.split('/').last),
+                        onTap: () => _handleFileSelection(contents[index].path),
+                      );
                     }
                   },
                 ),
