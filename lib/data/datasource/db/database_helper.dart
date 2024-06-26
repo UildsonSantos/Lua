@@ -1,4 +1,3 @@
-import 'package:lua/data/models/models.dart';
 import 'package:lua/domain/entities/entities.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -54,23 +53,6 @@ class DatabaseHelper {
         FOREIGN KEY (playlistId) REFERENCES playlists(id) ON DELETE CASCADE,
         FOREIGN KEY (songId) REFERENCES songs(id) ON DELETE CASCADE,
         PRIMARY KEY (playlistId, songId)
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE directories (
-        id INTEGER PRIMARY KEY,
-        path TEXT NOT NULL,
-        folderCount INTEGER NOT NULL,
-        fileCount INTEGER NOT NULL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE files (
-        id INTEGER PRIMARY KEY,
-        directoryId INTEGER NOT NULL,
-        path TEXT NOT NULL,
-        FOREIGN KEY (directoryId) REFERENCES directories (id)
       )
     ''');
   }
@@ -167,52 +149,5 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('playlists', where: 'id = ?', whereArgs: [id]);
     await db.delete('playlist_songs', where: 'playlistId = ?', whereArgs: [id]);
-  }
-
-  Future<void> insertDirectory(DirectoryModel directory) async {
-    final db = await database;
-    await db.insert(
-      'directories',
-      directory.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<void> insertFile(FileModel file) async {
-    final db = await database;
-    await db.insert(
-      'files',
-      file.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<List<DirectoryModel>> getAllDirectories() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('directories');
-    return List.generate(maps.length, (i) {
-      return DirectoryModel(
-        id: maps[i]['id'],
-        path: maps[i]['path'],
-        folderCount: maps[i]['folderCount'],
-        fileCount: maps[i]['fileCount'],
-      );
-    });
-  }
-
-  Future<List<FileModel>> getAllFilesByDirectoryId(int directoryId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'files',
-      where: 'directoryId = ?',
-      whereArgs: [directoryId],
-    );
-    return List.generate(maps.length, (i) {
-      return FileModel(
-        id: maps[i]['id'],
-        directoryId: maps[i]['directoryId'],
-        path: maps[i]['path'],
-      );
-    });
   }
 }
