@@ -7,6 +7,7 @@ class FolderWidget extends StatelessWidget {
   final int folderCount;
   final int fileCount;
   final VoidCallback? onTap;
+  final VoidCallback? onAddFavorite;
 
   const FolderWidget({
     super.key,
@@ -16,6 +17,7 @@ class FolderWidget extends StatelessWidget {
     required this.folderCount,
     required this.fileCount,
     this.onTap,
+    this.onAddFavorite,
   });
 
   @override
@@ -53,7 +55,20 @@ class FolderWidget extends StatelessWidget {
                         ],
                       ],
                     ),
-                    trailing: const Icon(Icons.more_vert),
+                    trailing: PopupMenuButton(
+                      icon: const Icon(Icons.more_vert),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'favorite',
+                          child: Text('Add to Favorites'),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'favorite' && onAddFavorite != null) {
+                          onAddFavorite!();
+                        }
+                      },
+                    ),
                     onTap: onTap,
                   ),
                 ],
@@ -91,7 +106,20 @@ class FolderWidget extends StatelessWidget {
                           ],
                         ],
                       ),
-                      trailing: const Icon(Icons.more_vert),
+                      trailing: PopupMenuButton(
+                        icon: const Icon(Icons.more_vert),
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'favorite',
+                            child: Text('Add to Favorites'),
+                          ),
+                        ],
+                        onSelected: (value) {
+                          if (value == 'favorite' && onAddFavorite != null) {
+                            onAddFavorite!();
+                          }
+                        },
+                      ),
                       onTap: onTap,
                     ),
                   ),
