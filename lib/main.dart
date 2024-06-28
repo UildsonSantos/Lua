@@ -18,12 +18,20 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => FileBloc(
-        loadDirectoryContents:
-            LoadDirectoryContents(GetIt.instance<FileRepository>()),
-        requestPermission: RequestPermission(GetIt.instance<FileRepository>()),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => FileBloc(
+            loadDirectoryContents:
+                LoadDirectoryContents(GetIt.instance<FileRepository>()),
+            requestPermission:
+                RequestPermission(GetIt.instance<FileRepository>()),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => FavoriteBloc(),
+        ),
+      ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: HomePage(),

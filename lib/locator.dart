@@ -76,4 +76,8 @@ Future<void> init() async {
       requestPermission: sl<RequestPermission>(),
     ),
   );
+
+  sl.registerFactory(
+    () => FavoriteBloc(),
+  );
 }
