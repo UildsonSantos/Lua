@@ -47,6 +47,58 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
 
+    final List<Widget> favoritos = [
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Movies',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Music',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Documents',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/DCIM',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Download',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Picture',
+      ),
+      FolderWidget(
+        fileCount: 10,
+        folderCount: 7,
+        isVerticalView: _isVerticalView,
+        icon: Icons.folder,
+        fileOrDirectory: '/storage/emulated/0/Recordings',
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('LUA'),
@@ -63,37 +115,23 @@ class HomePageState extends State<HomePage> {
           const ListTile(
             title: Text('Favoritos'),
           ),
-          ConstrainedBox(
+          Container(
             constraints: BoxConstraints(
-              maxHeight: _isVerticalView ? screenHeight / 6 : screenHeight / 2,
+              maxHeight: screenHeight / 2,
             ),
-            child: BlocBuilder<FavoriteBloc, FavoriteState>(
-              builder: (context, state) {
-                 if (state is FavoriteLoaded) {
-                  return GridView.builder(
-                    scrollDirection:
-                        _isVerticalView ? Axis.horizontal : Axis.vertical,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: _isVerticalView ? 1 : 2,
-                    ),
-                    itemCount: state.favorites.length,
-                    itemBuilder: (context, index) {
-                      final directory = state.favorites[index];
-                      return FolderWidget(
-                        fileCount: 10,
-                        folderCount: 7,
-                        isVerticalView: _isVerticalView,
-                        icon: Icons.folder,
-                        fileOrDirectory: directory,
-                        onAddFavorite: () {
-                          context.read<FavoriteBloc>().add(AddFavoriteEvent(directory));
-                        },
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: GridView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.all(7.0),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _isVerticalView ? 2 : 1,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: _isVerticalView ? 1 : 6,
+              ),
+              itemCount: favoritos.length,
+              itemBuilder: (context, index) {
+                return favoritos[index];
               },
             ),
           ),
