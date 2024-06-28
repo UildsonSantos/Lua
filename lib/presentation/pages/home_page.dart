@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lua/presentation/blocs/blocs.dart';
 import 'package:lua/presentation/pages/pages.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
 
@@ -14,6 +14,12 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isVerticalView = true;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<FileBloc>().add(RequestPermissionEvent());
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,7 +36,10 @@ class HomePageState extends State<HomePage> {
   void _navigateToFileExplorerPage(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FileExplorerPage()),
+      MaterialPageRoute(
+          builder: (context) => const FileExplorerPage(
+                initialDirectory: '/storage/emulated/0',
+              )),
     );
   }
 
