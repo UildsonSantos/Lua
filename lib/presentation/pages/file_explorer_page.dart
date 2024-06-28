@@ -2,10 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:lua/data/models/models.dart';
-import 'package:lua/domain/repositories/repositories.dart';
-import 'package:lua/domain/usecases/usecases.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
 
@@ -16,12 +13,12 @@ class FileExplorerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => FileBloc(
-        loadDirectoryContents:
-            LoadDirectoryContents(GetIt.instance<FileRepository>()),
-        requestPermission: RequestPermission(GetIt.instance<FileRepository>()),
-      )..add(LoadDirectoryContentsEvent(initialDirectory)),
+    final fileBloc = BlocProvider.of<FileBloc>(context);
+
+    fileBloc.add(LoadDirectoryContentsEvent(initialDirectory));
+
+    return BlocProvider.value(
+      value: fileBloc,
       child: FileExplorerPageView(initialDirectory: initialDirectory),
     );
   }
