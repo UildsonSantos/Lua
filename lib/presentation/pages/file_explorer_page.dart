@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +10,9 @@ import 'package:lua/presentation/blocs/blocs.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
 
 class FileExplorerPage extends StatelessWidget {
-  const FileExplorerPage({super.key});
+  final String initialDirectory;
+
+  const FileExplorerPage({super.key, required this.initialDirectory});
 
   @override
   Widget build(BuildContext context) {
@@ -20,35 +21,33 @@ class FileExplorerPage extends StatelessWidget {
         loadDirectoryContents:
             LoadDirectoryContents(GetIt.instance<FileRepository>()),
         requestPermission: RequestPermission(GetIt.instance<FileRepository>()),
-      )..add(RequestPermissionEvent()),
-      child: const FileExplorerPageView(),
+      )..add(LoadDirectoryContentsEvent(initialDirectory)),
+      child: FileExplorerPageView(initialDirectory: initialDirectory),
     );
   }
 }
 
 class FileExplorerPageView extends StatefulWidget {
-  const FileExplorerPageView({super.key});
+  final String initialDirectory;
+
+  const FileExplorerPageView({super.key, required this.initialDirectory});
 
   @override
   State<FileExplorerPageView> createState() => _FileExplorerPageViewState();
 }
 
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
-  final List<String> _directoryStack = ['/storage/emulated/0'];
-  final List<String> _directoryNames = ['Navigator'];
+  late List<String> _directoryStack;
+  late List<String> _directoryNames;
   bool _showButton = true;
   late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    context.read<FileBloc>().stream.listen((state) {
-      if (state is PermissionGranted) {
-        context
-            .read<FileBloc>()
-            .add(const LoadDirectoryContentsEvent('/storage/emulated/0'));
-      }
-    });
+    _directoryStack = [widget.initialDirectory];
+    _directoryNames = ['Navigator'];
+
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
   }
@@ -62,13 +61,11 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   void _scrollListener() {
     if (_scrollController.position.userScrollDirection ==
         ScrollDirection.forward) {
-      // Scroll para cima
       setState(() {
         _showButton = true;
       });
     } else if (_scrollController.position.userScrollDirection ==
         ScrollDirection.reverse) {
-      // Scroll para baixo
       setState(() {
         _showButton = false;
       });
@@ -88,21 +85,21 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   }
 
   void _handleFileSelection(String fileOrDirectory) async {
+    final fileBloc = context.read<FileBloc>();
     final entityType = await FileSystemEntity.type(fileOrDirectory);
+
+    if (!mounted) return;
+
     switch (entityType) {
       case FileSystemEntityType.directory:
         setState(() {
           _directoryStack.add(fileOrDirectory);
           _directoryNames.add(fileOrDirectory.split('/').last);
         });
-        context
-            .read<FileBloc>()
-            .add(LoadDirectoryContentsEvent(fileOrDirectory));
-        break;
+        fileBloc.add(LoadDirectoryContentsEvent(fileOrDirectory));
       case FileSystemEntityType.file:
-        //TODO: Lógica de seleção de arquivos
+        // TODO: Handle file selection
         break;
-
       case FileSystemEntityType.link:
       case FileSystemEntityType.notFound:
       case FileSystemEntityType.pipe:
@@ -116,7 +113,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     return BlocBuilder<FileBloc, FileState>(
       builder: (context, state) {
         if (state is FileLoading) {
-          return const Scaffold(body: Center(child: SizedBox()));
+          return const Scaffold();
         } else if (state is FileLoaded) {
           final directories = state.directoryContents['directories'];
           final audiFiles = state.directoryContents['files'];
@@ -183,9 +180,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                     icon: AnimatedScale(
                       scale: _showButton ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 300),
-                      child: const Icon(
-                        Icons.play_circle_rounded,
-                      ),
+                      child: const Icon(Icons.play_circle_rounded),
                     ),
                     onPressed: () {},
                   ),
@@ -194,23 +189,28 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
             ),
           );
         } else if (state is PermissionDenied) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Permissão de acesso negada.'),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<FileBloc>().add(RequestPermissionEvent());
-                  },
-                  child: const Icon(Icons.refresh_rounded),
-                ),
-              ],
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Permissão de acesso negada.'),
+                  const Text(
+                      'O Aplicativo precida da permissão do usuario para ler arquivos de audio.'),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<FileBloc>().add(RequestPermissionEvent());
+                    },
+                    child: const Icon(Icons.refresh_rounded),
+                  ),
+                ],
+              ),
             ),
           );
         } else {
-          return const Center(
-              child: Text('Nenhum arquivo de áudio encontrado'));
+          return const Scaffold(
+            body: Center(child: Text('Nenhum arquivo de áudio encontrado!')),
+          );
         }
       },
     );
