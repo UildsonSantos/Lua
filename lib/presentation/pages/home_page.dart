@@ -67,32 +67,34 @@ class HomePageState extends State<HomePage> {
             constraints: BoxConstraints(
               maxHeight: _isVerticalView ? screenHeight / 6 : screenHeight / 2,
             ),
-            child: ListView(
-              scrollDirection:
-                  _isVerticalView ? Axis.horizontal : Axis.vertical,
-              children: [
-                FolderWidget(
-                  fileCount: 10,
-                  folderCount: 7,
-                  isVerticalView: _isVerticalView,
-                  icon: Icons.folder,
-                  fileOrDirectory: '/storage/emulated/0/Movies',
-                ),
-                FolderWidget(
-                  fileCount: 10,
-                  folderCount: 7,
-                  isVerticalView: _isVerticalView,
-                  icon: Icons.folder,
-                  fileOrDirectory: '/storage/emulated/0/Music',
-                ),
-                FolderWidget(
-                  fileCount: 10,
-                  folderCount: 7,
-                  isVerticalView: _isVerticalView,
-                  icon: Icons.folder,
-                  fileOrDirectory: '/storage/emulated/0/Documents',
-                ),
-              ],
+            child: BlocBuilder<FavoriteBloc, FavoriteState>(
+              builder: (context, state) {
+                 if (state is FavoriteLoaded) {
+                  return GridView.builder(
+                    scrollDirection:
+                        _isVerticalView ? Axis.horizontal : Axis.vertical,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _isVerticalView ? 1 : 2,
+                    ),
+                    itemCount: state.favorites.length,
+                    itemBuilder: (context, index) {
+                      final directory = state.favorites[index];
+                      return FolderWidget(
+                        fileCount: 10,
+                        folderCount: 7,
+                        isVerticalView: _isVerticalView,
+                        icon: Icons.folder,
+                        fileOrDirectory: directory,
+                        onAddFavorite: () {
+                          context.read<FavoriteBloc>().add(AddFavoriteEvent(directory));
+                        },
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
             ),
           ),
           const Divider(),
