@@ -8,18 +8,20 @@ sealed class FavoriteEvent extends Equatable {
 }
 
 final class AddFavoriteEvent extends FavoriteEvent {
-  final String directory;
+  final DirectoryInfo folder;
 
-  const AddFavoriteEvent(this.directory);
+  const AddFavoriteEvent({
+    required this.folder,
+  });
 
   @override
-  List<Object> get props => [directory];
+  List<Object> get props => [folder];
 }
 
 final class RemoveFavoriteEvent extends FavoriteEvent {
-  final String directory;
+ final DirectoryInfo folder;
 
-  const RemoveFavoriteEvent({required this.directory});
+  const RemoveFavoriteEvent({required this.folder});
 }
 
 final class LoadFavoritesEvent extends FavoriteEvent {}
