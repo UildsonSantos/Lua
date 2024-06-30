@@ -15,3 +15,11 @@ final class AddFavoriteEvent extends FavoriteEvent {
   @override
   List<Object> get props => [directory];
 }
+
+final class RemoveFavoriteEvent extends FavoriteEvent {
+  final String directory;
+
+  const RemoveFavoriteEvent({required this.directory});
+}
+
+final class LoadFavoritesEvent extends FavoriteEvent {}
