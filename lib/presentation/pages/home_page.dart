@@ -47,58 +47,6 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
 
-    final List<Widget> favoritos = [
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Movies',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Music',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Documents',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/DCIM',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Download',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Picture',
-      ),
-      FolderWidget(
-        fileCount: 10,
-        folderCount: 7,
-        isVerticalView: _isVerticalView,
-        icon: Icons.folder,
-        fileOrDirectory: '/storage/emulated/0/Recordings',
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('LUA'),
@@ -112,30 +60,48 @@ class HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          const ListTile(
-            title: Text('Favoritos'),
+          BlocBuilder<FavoriteBloc, FavoriteState>(
+            builder: (context, state) {
+              if (state.favorites.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                children: [
+                  const ListTile(
+                    title: Text('Favoritos'),
+                  ),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: screenHeight / 2,
+                    ),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.all(7.0),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _isVerticalView ? 2 : 1,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: _isVerticalView ? 1 : 6,
+                      ),
+                      itemCount: state.favorites.length,
+                      itemBuilder: (context, index) {
+                        return FolderWidget(
+                          fileCount: 0, // replace with the actual file count
+                          folderCount:
+                              0, // replace with the actual folder count
+                          isVerticalView: _isVerticalView,
+                          icon: Icons.folder,
+                          fileOrDirectory: state.favorites[index],
+                        );
+                      },
+                    ),
+                  ),
+                  const Divider(),
+                ],
+              );
+            },
           ),
-          Container(
-            constraints: BoxConstraints(
-              maxHeight: screenHeight / 2,
-            ),
-            child: GridView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              padding: const EdgeInsets.all(7.0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _isVerticalView ? 2 : 1,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: _isVerticalView ? 1 : 6,
-              ),
-              itemCount: favoritos.length,
-              itemBuilder: (context, index) {
-                return favoritos[index];
-              },
-            ),
-          ),
-          const Divider(),
           const ListTile(
             title: Text('Armazenamento'),
           ),
