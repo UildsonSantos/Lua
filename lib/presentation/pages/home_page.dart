@@ -34,12 +34,12 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  void _navigateToFileExplorerPage(BuildContext context) {
+  void _navigateToFileExplorerPage(BuildContext context, String directoryPath) {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => const FileExplorerPage(
-                initialDirectory: '/storage/emulated/0',
+          builder: (context) => FileExplorerPage(
+                initialDirectory: directoryPath,
               )),
     );
   }
@@ -93,7 +93,9 @@ class HomePageState extends State<HomePage> {
                           key: Key(item.path),
                           isVerticalView: _isVerticalView,
                           icon: Icons.folder,
-                          onTap: () {},
+                          onTap: () {
+                            _navigateToFileExplorerPage(context, item.path);
+                          },
                         );
                       },
                     ),
@@ -110,7 +112,7 @@ class HomePageState extends State<HomePage> {
             leading: const Icon(Icons.storage),
             title: const Text('Memória Interna'),
             onTap: () {
-              _navigateToFileExplorerPage(context);
+              _navigateToFileExplorerPage(context, '/storage/emulated/0');
             },
           ),
         ],

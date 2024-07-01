@@ -35,7 +35,7 @@ class FileExplorerPageView extends StatefulWidget {
 
 class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   late List<String> _directoryStack;
-  late List<String> _directoryNames;
+  final List<String> _directoryNames = ['Navigator'];
   bool _showButton = true;
   late ScrollController _scrollController;
 
@@ -43,7 +43,10 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   void initState() {
     super.initState();
     _directoryStack = [widget.initialDirectory];
-    _directoryNames = ['Navigator'];
+
+    if (widget.initialDirectory.split('/').last != '0') {
+      _directoryNames.add(widget.initialDirectory.split('/').last);
+    }
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
