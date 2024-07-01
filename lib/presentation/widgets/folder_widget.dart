@@ -74,16 +74,12 @@ class FolderWidget extends StatelessWidget {
                         icon: const Icon(Icons.more_vert),
                         onSelected: (value) {
                           if (value == 'add') {
-                            final updatedDirectoryInfo =
-                                directoryInfo.copyWith(isFavorite: true);
-                            context.read<FavoriteBloc>().add(
-                                AddFavoriteEvent(folder: updatedDirectoryInfo));
+                            context
+                                .read<FavoriteBloc>()
+                                .add(AddFavoriteEvent(folder: directoryInfo));
                           } else if (value == 'remove') {
-                            final updatedDirectoryInfo =
-                                directoryInfo.copyWith(isFavorite: false);
                             context.read<FavoriteBloc>().add(
-                                RemoveFavoriteEvent(
-                                    folder: updatedDirectoryInfo));
+                                RemoveFavoriteEvent(folder: directoryInfo));
                           }
                         },
                         itemBuilder: (context) => [
@@ -143,16 +139,12 @@ class FolderWidget extends StatelessWidget {
                           icon: const Icon(Icons.more_vert),
                           onSelected: (value) {
                             if (value == 'add') {
-                              final updatedDirectoryInfo =
-                                  directoryInfo.copyWith(isFavorite: true);
-                              context.read<FavoriteBloc>().add(AddFavoriteEvent(
-                                  folder: updatedDirectoryInfo));
+                              context
+                                  .read<FavoriteBloc>()
+                                  .add(AddFavoriteEvent(folder: directoryInfo));
                             } else if (value == 'remove') {
-                              final updatedDirectoryInfo =
-                                  directoryInfo.copyWith(isFavorite: false);
                               context.read<FavoriteBloc>().add(
-                                  RemoveFavoriteEvent(
-                                      folder: updatedDirectoryInfo));
+                                  RemoveFavoriteEvent(folder: directoryInfo));
                             }
                           },
                           itemBuilder: (context) => [
