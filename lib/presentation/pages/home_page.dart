@@ -128,44 +128,36 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            if (_isVerticalView)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 7.0),
-                  child: SizedBox(
-                    width: 195,
-                    child: FolderWidget(
-                      icon: Icons.storage,
-                      directoryInfo: const DirectoryInfo(
-                        path: '/storage/emulated/0',
-                        fileCount: 0,
-                        folderCount: 0,
-                        name: 'Memória Interna',
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final maxWidth = _isVerticalView ? 195.0 : double.infinity;
+                final maxHeight = _isVerticalView ? 160.0 : 60.0;
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 7.0, right: 7.0),
+                    child: SizedBox(
+                      width: maxWidth,
+                      height: maxHeight,
+                      child: FolderWidget(
+                        icon: Icons.storage,
+                        directoryInfo: const DirectoryInfo(
+                          path: '/storage/emulated/0',
+                          fileCount: 0,
+                          folderCount: 0,
+                          name: 'Memória Interna',
+                        ),
+                        isVerticalView: _isVerticalView,
+                        onTap: () {
+                          _navigateToFileExplorerPage(
+                              context, '/storage/emulated/0');
+                        },
                       ),
-                      isVerticalView: _isVerticalView,
-                      onTap: () {
-                        _navigateToFileExplorerPage(
-                            context, '/storage/emulated/0');
-                      },
                     ),
                   ),
-                ),
-              )
-            else
-              FolderWidget(
-                icon: Icons.storage,
-                directoryInfo: const DirectoryInfo(
-                  path: '/storage/emulated/0',
-                  fileCount: 0,
-                  folderCount: 0,
-                  name: 'Memória Interna',
-                ),
-                isVerticalView: _isVerticalView,
-                onTap: () {
-                  _navigateToFileExplorerPage(context, '/storage/emulated/0');
-                },
-              ),
+                );
+              },
+            )
           ],
         ),
       ),
