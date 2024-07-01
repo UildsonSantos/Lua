@@ -154,9 +154,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                     if (contents[index] is DirectoryInfo) {
                       return FolderWidget(
                         icon: Icons.folder,
-                        fileOrDirectory: contents[index].path,
-                        folderCount: contents[index].folderCount,
-                        fileCount: contents[index].fileCount,
+                        directoryInfo: contents[index],
                         onTap: () => _handleFileSelection(contents[index].path),
                       );
                     } else {
