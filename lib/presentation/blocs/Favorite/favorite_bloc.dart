@@ -14,12 +14,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 
   void _onAddFavorite(AddFavoriteEvent event, Emitter<FavoriteState> emit) {
     final List<DirectoryInfo> currentFavorites = state.favorites;
+    final DirectoryInfo newFolder = event.folder.copyWith(isFavorite: true);
 
-    if (event.folder.isFavorite) {
+    if (currentFavorites.any((folder) => folder.path == newFolder.path)) {
       return;
     }
-
-    final DirectoryInfo newFolder = event.folder.copyWith(isFavorite: true);
 
     final updatedFavorites = List<DirectoryInfo>.from(currentFavorites)
       ..add(newFolder);
@@ -36,36 +35,19 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 
   void _onLoadFavorites(LoadFavoritesEvent event, Emitter<FavoriteState> emit) {
     final favorites = [
-      DirectoryInfo(
+      const DirectoryInfo(
         folderCount: 25,
         fileCount: 15,
         path: '/storage/emulated/0/Music',
         isFavorite: true,
       ),
-      DirectoryInfo(
+      const DirectoryInfo(
         folderCount: 13,
         fileCount: 2,
         path: '/storage/emulated/0/Movies',
         isFavorite: true,
       ),
-      DirectoryInfo(
-        folderCount: 9,
-        fileCount: 24,
-        path: '/storage/emulated/0/Documents',
-        isFavorite: true,
-      ),
-      DirectoryInfo(
-        fileCount: 1,
-        folderCount: 142,
-        path: '/storage/emulated/0/Download',
-        isFavorite: true,
-      ),
-      DirectoryInfo(
-        fileCount: 5,
-        folderCount: 1,
-        path: '/storage/emulated/0/DCIM',
-        isFavorite: true,
-      ),
+      
     ];
     emit(FavoritesLoaded(favorites: favorites));
   }
