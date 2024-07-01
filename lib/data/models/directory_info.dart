@@ -2,13 +2,13 @@ class DirectoryInfo {
   final String path;
   final int fileCount;
   final int folderCount;
-  bool? isFavorite;
+  final bool isFavorite;
 
   DirectoryInfo({
     required this.path,
     required this.fileCount,
     required this.folderCount,
-    isFavorite = false,
+    this.isFavorite = false,
   });
 
   @override

@@ -13,8 +13,17 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
   }
 
   void _onAddFavorite(AddFavoriteEvent event, Emitter<FavoriteState> emit) {
-    final updatedFavorites = List<DirectoryInfo>.from(state.favorites)
-      ..add(event.folder);
+    final List<DirectoryInfo> currentFavorites = state.favorites;
+
+    if (event.folder.isFavorite) {
+      return;
+    }
+
+    final DirectoryInfo newFolder = event.folder.copyWith(isFavorite: true);
+
+    final updatedFavorites = List<DirectoryInfo>.from(currentFavorites)
+      ..add(newFolder);
+
     emit(FavoritesLoaded(favorites: updatedFavorites));
   }
 
