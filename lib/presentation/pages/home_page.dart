@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:lua/domain/repositories/repositories.dart';
+import 'package:lua/data/models/models.dart';
 import 'package:lua/presentation/blocs/blocs.dart';
 import 'package:lua/presentation/pages/pages.dart';
 import 'package:lua/presentation/widgets/widgets.dart';
@@ -90,36 +87,13 @@ class HomePageState extends State<HomePage> {
                       ),
                       itemCount: state.favorites.length,
                       itemBuilder: (context, index) {
-                        String directoryPath = state.favorites[index];
-
-                        return FutureBuilder<Map<String, int>>(
-                          future: GetIt.instance<FileRepository>()
-                              .countFilesAndDirectories(
-                                  Directory(directoryPath)),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return const Center(
-                                  child: Text('Error loading directory'));
-                            } else if (!snapshot.hasData) {
-                              return const Center(child: Text('No data'));
-                            }
-
-                            int fileCount = snapshot.data!['files'] ?? 0;
-                            int folderCount =
-                                snapshot.data!['directories'] ?? 0;
-
-                            return FolderWidget(
-                              fileCount: fileCount,
-                              folderCount: folderCount,
-                              isVerticalView: _isVerticalView,
-                              icon: Icons.folder,
-                              fileOrDirectory: directoryPath,
-                            );
-                          },
+                        DirectoryInfo item = state.favorites[index];
+                        return FolderWidget(
+                          directoryInfo: item,
+                          key: Key(item.path),
+                          isVerticalView: _isVerticalView,
+                          icon: Icons.folder,
+                          onTap: () {},
                         );
                       },
                     ),
