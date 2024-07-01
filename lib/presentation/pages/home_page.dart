@@ -50,7 +50,13 @@ class HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LUA'),
+        title: const Text(
+          'LUA',
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -59,63 +65,109 @@ class HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          BlocBuilder<FavoriteBloc, FavoriteState>(
-            builder: (context, state) {
-              if (state.favorites.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return Column(
-                children: [
-                  const ListTile(
-                    title: Text('Favoritos'),
-                  ),
-                  Container(
-                    constraints: BoxConstraints(
-                      maxHeight: screenHeight / 2,
-                    ),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.all(7.0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _isVerticalView ? 2 : 1,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: _isVerticalView ? 1 : 6,
+      body: Padding(
+        padding: const EdgeInsets.all(1.0),
+        child: Column(
+          children: [
+            BlocBuilder<FavoriteBloc, FavoriteState>(
+              builder: (context, state) {
+                if (state.favorites.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  children: [
+                    const ListTile(
+                      title: Text(
+                        'Favoritos',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      itemCount: state.favorites.length,
-                      itemBuilder: (context, index) {
-                        DirectoryInfo item = state.favorites[index];
-                        return FolderWidget(
-                          directoryInfo: item,
-                          key: Key(item.path),
-                          isVerticalView: _isVerticalView,
-                          icon: Icons.folder,
-                          onTap: () {
-                            _navigateToFileExplorerPage(context, item.path);
-                          },
-                        );
+                    ),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: screenHeight / 2,
+                      ),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        padding: const EdgeInsets.only(left: 7, right: 7),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: _isVerticalView ? 2 : 1,
+                          crossAxisSpacing: 7,
+                          mainAxisSpacing: _isVerticalView ? 7 : 2,
+                          childAspectRatio: _isVerticalView ? 1.2 : 7,
+                        ),
+                        itemCount: state.favorites.length,
+                        itemBuilder: (context, index) {
+                          DirectoryInfo item = state.favorites[index];
+                          return FolderWidget(
+                            directoryInfo: item,
+                            key: Key(item.path),
+                            isVerticalView: _isVerticalView,
+                            icon: Icons.folder,
+                            onTap: () {
+                              _navigateToFileExplorerPage(context, item.path);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(),
+                  ],
+                );
+              },
+            ),
+            const ListTile(
+              title: Text(
+                'Armazenamento',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (_isVerticalView)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 7.0),
+                  child: SizedBox(
+                    width: 195,
+                    child: FolderWidget(
+                      icon: Icons.storage,
+                      directoryInfo: const DirectoryInfo(
+                        path: '/storage/emulated/0',
+                        fileCount: 0,
+                        folderCount: 0,
+                        name: 'Memória Interna',
+                      ),
+                      isVerticalView: _isVerticalView,
+                      onTap: () {
+                        _navigateToFileExplorerPage(
+                            context, '/storage/emulated/0');
                       },
                     ),
                   ),
-                  const Divider(),
-                ],
-              );
-            },
-          ),
-          const ListTile(
-            title: Text('Armazenamento'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.storage),
-            title: const Text('Memória Interna'),
-            onTap: () {
-              _navigateToFileExplorerPage(context, '/storage/emulated/0');
-            },
-          ),
-        ],
+                ),
+              )
+            else
+              FolderWidget(
+                icon: Icons.storage,
+                directoryInfo: const DirectoryInfo(
+                  path: '/storage/emulated/0',
+                  fileCount: 0,
+                  folderCount: 0,
+                  name: 'Memória Interna',
+                ),
+                isVerticalView: _isVerticalView,
+                onTap: () {
+                  _navigateToFileExplorerPage(context, '/storage/emulated/0');
+                },
+              ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
