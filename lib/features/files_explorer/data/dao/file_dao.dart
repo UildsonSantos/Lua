@@ -18,5 +18,17 @@ class FileDAO {
     });
   }
 
-  // Other CRUD operations for files
+  Future<void> saveDirectories(List<DirectoryInfo> directories) async {
+    final db = await FileDatabase.instance.database;
+
+    for (final directory in directories) {
+      await db.insert('files', {
+        'path': directory.path,
+        'fileCount': directory.fileCount,
+        'folderCount': directory.folderCount,
+        'isFavorite': directory.isFavorite ? 1 : 0,
+        'name': directory.name,
+      });
+    }
+  }
 }
