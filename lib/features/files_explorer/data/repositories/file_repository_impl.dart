@@ -50,51 +50,55 @@ class FileRepositoryImpl implements FileRepository {
   }
 
   @override
-  Future<Map<String, List<dynamic>>> listDirectoriesAndFiles(
-      String dirPath) async {
-    if (await _requestPermission.execute()) {
-      var mainDirectory = Directory(dirPath);
-      List<DirectoryInfo> subDirectories = [];
-      List<File> mediaFiles = [];
+Future<Map<String, List<dynamic>>> listDirectoriesAndFiles(String dirPath) async {
+  if (await _requestPermission.execute()) {
+    var mainDirectory = Directory(dirPath);
+    List<DirectoryInfo> subDirectories = [];
+    List<File> mediaFiles = [];
 
-      if (!(await mainDirectory.exists())) {
-        if (kDebugMode) {
-          print('O diretório não existe.');
-        }
-        return {'directories': subDirectories, 'files': mediaFiles};
+    if (!(await mainDirectory.exists())) {
+      if (kDebugMode) {
+        print('O diretório não existe.');
       }
-
-      await for (var entity
-          in mainDirectory.list(recursive: false, followLinks: false)) {
-        if (entity is Directory && !isAndroidDataDirectory(entity)) {
-          var result = await countFilesAndDirectories(entity);
-          DirectoryInfo info = DirectoryInfo(
-            path: entity.path,
-            fileCount: result['files']!,
-            folderCount: result['directories']!,
-          );
-          subDirectories.add(info);
-        } else if (entity is File && isMediaFile(entity)) {
-          mediaFiles.add(entity);
-        }
-      }
-        // Verificar se os diretórios já existem no banco de dados
-      List<DirectoryInfo> newDirectories = [];
-      List<DirectoryInfo> existingDirectories = await _fileDAO.getAllDirectories();
-
-      for (final directory in subDirectories) {
-        if (!existingDirectories.any((d) => d.path == directory.path)) {
-          newDirectories.add(directory);
-        }
-      }
-
-      // Salvar apenas os novos diretórios no banco de dados
-      await _fileDAO.saveDirectories(newDirectories);
-
       return {'directories': subDirectories, 'files': mediaFiles};
-    } else {
-      //TODO: Tratar o caso de permissão negada
-      return {};
     }
+
+    // Obter os diretórios do banco de dados
+    List<DirectoryInfo> existingDirectories = await _fileDAO.getAllDirectories();
+
+    // Verificar quais diretórios precisam ser adicionados ao banco de dados
+    List<DirectoryInfo> newDirectories = [];
+    await for (var entity in mainDirectory.list(recursive: false, followLinks: false)) {
+      if (entity is Directory && !isAndroidDataDirectory(entity)) {
+        var result = await countFilesAndDirectories(entity);
+        DirectoryInfo info = DirectoryInfo(
+          path: entity.path,
+          fileCount: result['files']!,
+          folderCount: result['directories']!,
+        );
+
+        if (!existingDirectories.any((d) => d.path == info.path)) {
+          newDirectories.add(info);
+        } else {
+          // Atualizar a informação do diretório existente
+          int index = existingDirectories.indexWhere((d) => d.path == info.path);
+          existingDirectories[index] = info;
+        }
+      } else if (entity is File && isMediaFile(entity)) {
+        mediaFiles.add(entity);
+      }
+    }
+
+    // Salvar os novos diretórios no banco de dados
+    await _fileDAO.saveDirectories(newDirectories);
+
+    // Retornar a lista de diretórios (existentes e novos) e arquivos
+    List<DirectoryInfo> allDirectories = [...existingDirectories, ...newDirectories];
+    return {'directories': allDirectories, 'files': mediaFiles};
+  } else {
+    //TODO: Tratar o caso de permissão negada
+    return {};
   }
+}
+
 }
