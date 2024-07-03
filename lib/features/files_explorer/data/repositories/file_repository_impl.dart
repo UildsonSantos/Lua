@@ -1,15 +1,16 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:lua/features/files_explorer/data/dao/dao.dart';
 import 'package:lua/features/files_explorer/domain/repositories/repositories.dart';
 import 'package:lua/shared/data/models/models.dart';
 import 'package:lua/shared/domain/usecases/usecases.dart';
 import 'package:path/path.dart' as p;
 
-
 class FileRepositoryImpl implements FileRepository {
   final RequestPermission _requestPermission;
+  final FileDAO _fileDAO;
 
-  FileRepositoryImpl(this._requestPermission);
+  FileRepositoryImpl(this._requestPermission, this._fileDAO);
 
   bool isAndroidDataDirectory(Directory directory) {
     return directory.path.contains('/Android/');
@@ -77,6 +78,18 @@ class FileRepositoryImpl implements FileRepository {
           mediaFiles.add(entity);
         }
       }
+        // Verificar se os diretórios já existem no banco de dados
+      List<DirectoryInfo> newDirectories = [];
+      List<DirectoryInfo> existingDirectories = await _fileDAO.getAllDirectories();
+
+      for (final directory in subDirectories) {
+        if (!existingDirectories.any((d) => d.path == directory.path)) {
+          newDirectories.add(directory);
+        }
+      }
+
+      // Salvar apenas os novos diretórios no banco de dados
+      await _fileDAO.saveDirectories(newDirectories);
 
       return {'directories': subDirectories, 'files': mediaFiles};
     } else {
