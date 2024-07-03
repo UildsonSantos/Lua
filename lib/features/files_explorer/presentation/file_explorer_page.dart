@@ -197,7 +197,6 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                       'O Aplicativo precida da permissão do usuario para ler arquivos de audio.'),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<FileBloc>().add(RequestPermissionEvent());
                     },
                     child: const Icon(Icons.refresh_rounded),
                   ),

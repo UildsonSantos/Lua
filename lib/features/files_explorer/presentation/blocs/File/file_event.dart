@@ -15,5 +15,3 @@ final class LoadDirectoryContentsEvent extends FileEvent {
   @override
   List<Object> get props => [directory];
 }
-
-final class RequestPermissionEvent extends FileEvent {}
