@@ -8,8 +8,8 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   FavoriteRepositoryImpl(this._favoritesDAO);
 
   @override
-  Future<void> addFavorite(String directoryPath) async {
-    await _favoritesDAO.addToFavorites(directoryPath);
+  Future<void> addFavorite(DirectoryInfo directoryInfo) async {
+    await _favoritesDAO.addToFavorites(directoryInfo.path);
   }
 
   @override
@@ -18,7 +18,7 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   }
 
   @override
-  Future<void> removeFavorite(String directoryPath) async {
-    await _favoritesDAO.removeFromFavorites(directoryPath);
+  Future<void> removeFavorite(DirectoryInfo directoryInfo) async {
+    await _favoritesDAO.removeFromFavorites(directoryInfo.path);
   }
 }
