@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lua/domain/repositories/repositories.dart';
-import 'package:lua/domain/usecases/usecases.dart';
+import 'package:lua/features/files_explorer/domain/repositories/repositories.dart';
+import 'package:lua/features/files_explorer/domain/usecases/usecases.dart';
+import 'package:lua/features/files_explorer/presentation/blocs/blocs.dart';
+import 'package:lua/features/files_favorites/domain/usecases/usecases.dart';
+import 'package:lua/features/files_favorites/presentation/blocs/blocs.dart';
+import 'package:lua/features/files_favorites/presentation/pages/pages.dart';
 import 'package:lua/locator.dart' as di;
-import 'package:lua/presentation/blocs/blocs.dart';
-import 'package:lua/presentation/pages/pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,17 +26,23 @@ class MainApp extends StatelessWidget {
           create: (context) => FileBloc(
             loadDirectoryContents:
                 LoadDirectoryContents(GetIt.instance<FileRepository>()),
-            requestPermission:
-                RequestPermission(GetIt.instance<FileRepository>()),
           ),
         ),
         BlocProvider(
-          create: (context) => FavoriteBloc(),
+          create: (context) => FavoriteBloc(
+            addFavoriteUseCase: GetIt.instance<AddFavorite>(),
+            getAllFavoritesUseCase: GetIt.instance<GetAllFavorites>(),
+            removeFavoriteUseCase: GetIt.instance<RemoveFavorite>(),
+          ),
         ),
       ],
-      child: const MaterialApp(
+      child:  MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomePage(),
+        home: HomePage(favoriteBloc: FavoriteBloc(
+            addFavoriteUseCase: GetIt.instance<AddFavorite>(),
+            getAllFavoritesUseCase: GetIt.instance<GetAllFavorites>(),
+            removeFavoriteUseCase: GetIt.instance<RemoveFavorite>(),
+          ),),
       ),
     );
   }
