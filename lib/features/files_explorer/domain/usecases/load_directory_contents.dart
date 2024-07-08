@@ -1,4 +1,3 @@
-
 import 'package:lua/features/files_explorer/domain/repositories/repositories.dart';
 
 class LoadDirectoryContents {
@@ -7,6 +6,6 @@ class LoadDirectoryContents {
   LoadDirectoryContents(this.repository);
 
   Future<Map<String, List<dynamic>>> call(String dirPath) async {
-    return await repository.listDirectoriesAndFiles(dirPath);
+    return await repository.getDirectoryContents(dirPath);
   }
 }
