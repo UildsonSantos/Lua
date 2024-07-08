@@ -4,7 +4,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lua/features/files_explorer/domain/usecases/usecases.dart';
 
-
 part 'file_event.dart';
 part 'file_state.dart';
 
@@ -27,6 +26,4 @@ class FileBloc extends Bloc<FileEvent, FileState> {
       emit(const FileError('Error ao carregar diretorio.'));
     }
   }
-
-
 }

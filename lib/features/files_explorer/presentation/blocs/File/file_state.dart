@@ -28,6 +28,4 @@ final class FileError extends FileState {
   List<Object> get props => [message];
 }
 
-final class PermissionGranted extends FileState {}
-
-final class PermissionDenied extends FileState {}
+final class FileScanned extends FileState {}
