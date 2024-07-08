@@ -17,7 +17,7 @@ class FileDatabase {
 
   Future<Database> _initDatabase() async {
     final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'file.db');
+    final path = join(databasePath, 'file_explorer.db');
 
     return await openDatabase(
       path,
@@ -28,14 +28,14 @@ class FileDatabase {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE files (
-        id INTEGER PRIMARY KEY,
-        path TEXT NOT NULL,
-        fileCount INTEGER NOT NULL,
-        folderCount INTEGER NOT NULL,
-        isFavorite INTEGER NOT NULL,
-        name TEXT
-      )
+      CREATE TABLE directories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      path TEXT NOT NULL,
+      name TEXT,
+      isFavorite INTEGER,
+      type TEXT,
+      parent_id TEXT
+    )
     ''');
   }
 }
