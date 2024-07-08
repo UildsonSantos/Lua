@@ -1,7 +1,7 @@
 import 'package:permission_handler/permission_handler.dart';
 
 class RequestPermission {
-  Future<bool> execute() async {
+  Future<bool> call() async {
     var status = await Permission.storage.status;
     if (status.isDenied) {
       Map<Permission, PermissionStatus> status = await [
