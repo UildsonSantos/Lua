@@ -1,14 +1,16 @@
-class DirectoryInfo {
+import 'package:equatable/equatable.dart';
+
+class DirectoryInfo extends Equatable{
   final int? id;
   final String path;
   final String type;
   final String? parentId;
   final bool isFavorite;
   final String? name;
-  int fileCount;
-  int folderCount;
+  final int fileCount;
+  final int folderCount;
 
-  DirectoryInfo({
+  const DirectoryInfo({
     this.id,
     required this.path,
     required this.type,
@@ -18,6 +20,10 @@ class DirectoryInfo {
     this.fileCount = 0,
     this.folderCount = 0,
   });
+
+ @override
+  List<Object?> get props => [id, path, parentId, isFavorite, name, fileCount, folderCount];
+
 
   factory DirectoryInfo.fromMap(Map<String, dynamic> map) {
     return DirectoryInfo(
@@ -58,4 +64,6 @@ class DirectoryInfo {
       folderCount: folderCount ?? this.folderCount,
     );
   }
+  
+ 
 }
