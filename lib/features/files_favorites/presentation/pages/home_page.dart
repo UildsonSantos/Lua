@@ -6,8 +6,7 @@ import 'package:lua/shared/data/models/directory_info.dart';
 import 'package:lua/shared/presentation/widgets/folder_widget.dart';
 
 class HomePage extends StatefulWidget {
-  final FavoriteBloc favoriteBloc;
-  const HomePage({super.key, required this.favoriteBloc});
+  const HomePage({super.key});
 
   @override
   HomePageState createState() => HomePageState();
@@ -20,7 +19,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    widget.favoriteBloc.add(LoadFavoritesEvent());
+    context.read<FavoriteBloc>().add(LoadFavoritesEvent());
   }
 
   void _onItemTapped(int index) {
@@ -61,8 +60,20 @@ class HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: Icon(
-                _isVerticalView ? Icons.list_rounded : Icons.grid_view_rounded),
+              _isVerticalView ? Icons.view_list_sharp : Icons.grid_view_sharp,
+              size: 25,
+            ),
             onPressed: _toggleView,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 7.0),
+            child: IconButton(
+              icon: const Icon(
+                Icons.more_vert,
+                size: 25,
+              ),
+              onPressed: () {},
+            ),
           ),
         ],
       ),
@@ -144,7 +155,8 @@ class HomePageState extends State<HomePage> {
                       height: maxHeight,
                       child: FolderWidget(
                         icon: Icons.storage,
-                        directoryInfo: const DirectoryInfo(
+                        directoryInfo: DirectoryInfo(
+                          type: 'dir',
                           path: '/storage/emulated/0',
                           fileCount: 0,
                           folderCount: 0,
