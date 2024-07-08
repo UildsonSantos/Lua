@@ -19,18 +19,16 @@ class DirectoryInfo {
     this.folderCount = 0,
   });
 
-  String get getPath => path;
-
   factory DirectoryInfo.fromMap(Map<String, dynamic> map) {
     return DirectoryInfo(
       id: map['id'],
       path: map['path'],
       type: map['type'],
       parentId: map['parentId'],
-      isFavorite: map['isFavorite'],
+      isFavorite: map['isFavorite'] ?? false,
       name: map['name'],
-      fileCount: map['fileCount'],
-      folderCount: map['folderCount'],
+      fileCount: map['fileCount'] ?? 0,
+      folderCount: map['folderCount'] ?? 0,
     );
   }
 
