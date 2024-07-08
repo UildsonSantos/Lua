@@ -27,5 +27,3 @@ final class FileError extends FileState {
   @override
   List<Object> get props => [message];
 }
-
-final class FileScanned extends FileState {}
