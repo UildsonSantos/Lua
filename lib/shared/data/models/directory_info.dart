@@ -1,36 +1,63 @@
 class DirectoryInfo {
+  final int? id;
   final String path;
-  final int fileCount;
-  final int folderCount;
+  final String type;
+  final String? parentId;
   final bool isFavorite;
   final String? name;
+  int fileCount;
+  int folderCount;
 
-  const DirectoryInfo({
+  DirectoryInfo({
+    this.id,
     required this.path,
-    required this.fileCount,
-    required this.folderCount,
+    required this.type,
+    this.parentId,
     this.isFavorite = false,
     this.name,
+    this.fileCount = 0,
+    this.folderCount = 0,
   });
+
+  String get getPath => path;
+
+  factory DirectoryInfo.fromMap(Map<String, dynamic> map) {
+    return DirectoryInfo(
+      id: map['id'],
+      path: map['path'],
+      type: map['type'],
+      parentId: map['parentId'],
+      isFavorite: map['isFavorite'],
+      name: map['name'],
+      fileCount: map['fileCount'],
+      folderCount: map['folderCount'],
+    );
+  }
 
   @override
   String toString() {
-    return 'DirectoryInfo(path: $path, files: $fileCount, directories: $folderCount, name: $name)';
+    return 'DirectoryInfo(id: $id, path: $path, type: $type, parentId: $parentId, isFavorite: $isFavorite, name: $name, fileCount: $fileCount, folderCount: $folderCount)';
   }
 
   DirectoryInfo copyWith({
+    int? id,
     String? path,
-    int? fileCount,
-    int? folderCount,
+    String? type,
+    String? parentId,
     bool? isFavorite,
     String? name,
+    int? fileCount,
+    int? folderCount,
   }) {
     return DirectoryInfo(
+      id: id ?? this.id,
       path: path ?? this.path,
-      fileCount: fileCount ?? this.fileCount,
-      folderCount: folderCount ?? this.folderCount,
+      type: type ?? this.type,
+      parentId: parentId ?? this.parentId,
       isFavorite: isFavorite ?? this.isFavorite,
       name: name ?? this.name,
+      fileCount: fileCount ?? this.fileCount,
+      folderCount: folderCount ?? this.folderCount,
     );
   }
 }
