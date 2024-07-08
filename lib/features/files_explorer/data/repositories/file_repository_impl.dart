@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:lua/features/files_explorer/data/dao/dao.dart';
 import 'package:lua/features/files_explorer/domain/repositories/repositories.dart';
-import 'package:lua/shared/data/models/models.dart';
 import 'package:lua/shared/domain/usecases/usecases.dart';
 import 'package:path/path.dart' as p;
 
@@ -22,83 +21,69 @@ class FileRepositoryImpl implements FileRepository {
   }
 
   @override
-  Future<Map<String, int>> countFilesAndDirectories(Directory directory) async {
-    if (await _requestPermission.execute()) {
-      int fileCount = 0;
-      int dirCount = 0;
-
-      await for (var entity
-          in directory.list(recursive: false, followLinks: false)) {
-        if (entity is Directory &&
-            !entity.path.split('/').last.startsWith('.') &&
-            isAndroidDataDirectory(entity)) {
-          continue;
-        }
-
-        if (entity is File) {
-          fileCount++;
-        } else if (entity is Directory) {
-          dirCount++;
-        }
-      }
-
-      return {'files': fileCount, 'directories': dirCount};
-    } else {
-      //TODO: Tratar o caso de permissão negada
-      return {};
-    }
+  Future<Map<String, List<dynamic>>> getDirectoryContents(
+      String dirPath) async {
+    return await _fileDAO.getFileOrDirectoryContents(dirPath);
   }
 
   @override
-Future<Map<String, List<dynamic>>> listDirectoriesAndFiles(String dirPath) async {
-  if (await _requestPermission.execute()) {
-    var mainDirectory = Directory(dirPath);
-    List<DirectoryInfo> subDirectories = [];
-    List<File> mediaFiles = [];
+  Future<void> scanDirectoriesAndSaveToDatabase() async {
+    await _fileDAO.clearDatabase();
 
-    if (!(await mainDirectory.exists())) {
-      if (kDebugMode) {
-        print('O diretório não existe.');
-      }
-      return {'directories': subDirectories, 'files': mediaFiles};
-    }
+    final root = Directory('/storage/emulated/0');
 
-    // Obter os diretórios do banco de dados
-    List<DirectoryInfo> existingDirectories = await _fileDAO.getAllDirectories();
+    final directory = {
+      'path': root.path,
+      'name': 'Memória Interna',
+      'isFavorite': 0,
+      'type': 'dir',
+      'parent_id': null,
+    };
 
-    // Verificar quais diretórios precisam ser adicionados ao banco de dados
-    List<DirectoryInfo> newDirectories = [];
-    await for (var entity in mainDirectory.list(recursive: false, followLinks: false)) {
-      if (entity is Directory && !isAndroidDataDirectory(entity)) {
-        var result = await countFilesAndDirectories(entity);
-        DirectoryInfo info = DirectoryInfo(
-          path: entity.path,
-          fileCount: result['files']!,
-          folderCount: result['directories']!,
-        );
+    await _fileDAO.insertFileOrDirectory(directory);
 
-        if (!existingDirectories.any((d) => d.path == info.path)) {
-          newDirectories.add(info);
-        } else {
-          // Atualizar a informação do diretório existente
-          int index = existingDirectories.indexWhere((d) => d.path == info.path);
-          existingDirectories[index] = info;
-        }
-      } else if (entity is File && isMediaFile(entity)) {
-        mediaFiles.add(entity);
-      }
-    }
-
-    // Salvar os novos diretórios no banco de dados
-    await _fileDAO.saveDirectories(newDirectories);
-
-    // Retornar a lista de diretórios (existentes e novos) e arquivos
-    List<DirectoryInfo> allDirectories = [...existingDirectories, ...newDirectories];
-    return {'directories': allDirectories, 'files': mediaFiles};
-  } else {
-    //TODO: Tratar o caso de permissão negada
-    return {};
+    await _scanDirectory(root);
   }
-}
 
+  Future<void> _scanDirectory(Directory dir) async {
+    if (await _requestPermission.call()) {
+      try {
+        final List<FileSystemEntity> entities = dir.listSync();
+        for (var entity in entities) {
+          if (entity is Directory &&
+              !isAndroidDataDirectory(entity) &&
+              !p.basename(entity.path).startsWith('.')) {
+            final directory = {
+              'path': entity.path,
+              'name': p.basename(entity.path),
+              'isFavorite': 0,
+              'type': 'dir',
+              'parent_id': p.dirname(entity.path),
+            };
+            await _fileDAO.insertFileOrDirectory(directory);
+
+            await _scanDirectory(entity);
+          } else if (entity is File && isMediaFile(entity)) {
+            final file = {
+              'path': entity.path,
+              'name': p.basename(entity.path),
+              'type': 'file',
+              'parent_id': p.dirname(entity.path),
+            };
+
+            await _fileDAO.insertFileOrDirectory(file);
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error scanning directory: $e');
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print(
+            'Permissão de armazenamento negada. Não é possível escanear diretórios.');
+      }
+    }
+  }
 }

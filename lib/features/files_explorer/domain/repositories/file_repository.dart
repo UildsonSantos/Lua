@@ -1,6 +1,4 @@
-import 'dart:io';
-
 abstract class FileRepository {
-  Future<Map<String, List<dynamic>>> listDirectoriesAndFiles(String dirPath);
-  Future<Map<String, int>> countFilesAndDirectories(Directory directory);
+  Future<void> scanDirectoriesAndSaveToDatabase();
+  Future<Map<String, List<dynamic>>> getDirectoryContents(String parentPath);
 }
