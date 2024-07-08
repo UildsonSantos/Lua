@@ -116,9 +116,9 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
           return const Scaffold();
         } else if (state is FileLoaded) {
           final directories = state.directoryContents['directories'];
-          final audiFiles = state.directoryContents['files'];
+          final audioFiles = state.directoryContents['files'];
 
-          final contents = [...directories!, ...audiFiles!];
+          final contents = [...directories!, ...audioFiles!];
 
           return Scaffold(
             appBar: AppBar(
@@ -154,19 +154,10 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   controller: _scrollController,
                   itemCount: contents.length,
                   itemBuilder: (context, index) {
-                    if (contents[index] is DirectoryInfo) {
-                      return FolderWidget(
-                        icon: Icons.folder,
-                        directoryInfo: contents[index],
-                        onTap: () => _handleFileSelection(contents[index].path),
-                      );
-                    } else {
-                      return ListTile(
-                        leading: const Icon(size: 30, Icons.audiotrack_rounded),
-                        title: Text(contents[index].path.split('/').last),
-                        onTap: () => _handleFileSelection(contents[index].path),
-                      );
-                    }
+                    return FolderWidget(
+                      directoryInfo: DirectoryInfo.fromMap(contents[index]),
+                      onTap: () => _handleFileSelection(contents[index]['path']),
+                    );
                   },
                 ),
                 Positioned(
@@ -186,7 +177,11 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
               ],
             ),
           );
-        } else if (state is PermissionDenied) {
+        } else if (state is FileError) {
+          return const Scaffold(
+            body: Center(child: Text('Nenhum arquivo de áudio encontrado!')),
+          );
+        } else {
           return Scaffold(
             body: Center(
               child: Column(
@@ -196,17 +191,12 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   const Text(
                       'O Aplicativo precida da permissão do usuario para ler arquivos de audio.'),
                   ElevatedButton(
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                     child: const Icon(Icons.refresh_rounded),
                   ),
                 ],
               ),
             ),
-          );
-        } else {
-          return const Scaffold(
-            body: Center(child: Text('Nenhum arquivo de áudio encontrado!')),
           );
         }
       },
