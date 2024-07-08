@@ -27,14 +27,14 @@ class FileDAO {
       String parentId) async {
     final db = await _database.database;
 
-// Buscar subdiretórios e arquivos usando o parentId
     final List<Map<String, dynamic>> directories = await db.query(
       'directories',
       where: 'parent_id = ?',
       whereArgs: [parentId],
     );
 
-    List<Map<String, dynamic>> subDirectories = directories.map((dir) {
+    List<Map<String, dynamic>> subDirectories =
+        directories.where((dir) => dir['type'] == 'dir').map((dir) {
       return {
         'id': dir['id'],
         'path': dir['path'],
