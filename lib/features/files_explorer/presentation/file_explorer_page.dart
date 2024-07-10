@@ -38,7 +38,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<String> _directoryNames = ['Navigator'];
   bool _showButton = true;
   late ScrollController _scrollController;
-  String? _selectedItem;
+  final Set<String> _selectedItems = {};
 
   @override
   void initState() {
@@ -109,6 +109,16 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     }
   }
 
+  void _toggleSelection(String path) {
+    setState(() {
+      if (_selectedItems.contains(path)) {
+        _selectedItems.remove(path);
+      } else {
+        _selectedItems.add(path);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FileBloc, FileState>(
@@ -157,13 +167,9 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   itemBuilder: (context, index) {
                     final item = contents[index];
                     return InkWell(
-                      onLongPress: () {
-                        setState(() {
-                          _selectedItem = item['path'];
-                        });
-                      },
+                      onLongPress: () => _toggleSelection(item['path']),
                       child: Container(
-                        color: _selectedItem == item['path']
+                        color: _selectedItems.contains(item['path'])
                             ? Colors.grey.shade400
                             : Colors.transparent,
                         child: FolderWidget(
