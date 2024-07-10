@@ -38,6 +38,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   final List<String> _directoryNames = ['Navigator'];
   bool _showButton = true;
   late ScrollController _scrollController;
+  String? _selectedItem;
 
   @override
   void initState() {
@@ -154,9 +155,23 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   controller: _scrollController,
                   itemCount: contents.length,
                   itemBuilder: (context, index) {
-                    return FolderWidget(
-                      directoryInfo: DirectoryInfo.fromMap(contents[index]),
-                      onTap: () => _handleFileSelection(contents[index]['path']),
+                    final item = contents[index];
+                    return InkWell(
+                      onLongPress: () {
+                        setState(() {
+                          _selectedItem = item['path'];
+                        });
+                      },
+                      child: Container(
+                        color: _selectedItem == item['path']
+                            ? Colors.grey.shade400
+                            : Colors.transparent,
+                        child: FolderWidget(
+                          directoryInfo: DirectoryInfo.fromMap(contents[index]),
+                          onTap: () =>
+                              _handleFileSelection(contents[index]['path']),
+                        ),
+                      ),
                     );
                   },
                 ),
