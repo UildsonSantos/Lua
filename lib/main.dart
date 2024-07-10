@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lua/features/files_explorer/domain/repositories/repositories.dart';
-import 'package:lua/features/files_explorer/domain/usecases/usecases.dart';
-import 'package:lua/features/files_explorer/presentation/blocs/blocs.dart';
-import 'package:lua/features/files_favorites/domain/usecases/usecases.dart';
 import 'package:lua/features/files_favorites/presentation/blocs/blocs.dart';
 import 'package:lua/features/files_favorites/presentation/pages/pages.dart';
 import 'package:lua/locator.dart' as di;
 
+import 'features/files_explorer/presentation/blocs/blocs.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+   final fileRepository = GetIt.instance<FileRepository>();
+  await fileRepository.scanDirectoriesAndSaveToDatabase();
   runApp(const MainApp());
 }
 
@@ -23,26 +24,15 @@ class MainApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => FileBloc(
-            loadDirectoryContents:
-                LoadDirectoryContents(GetIt.instance<FileRepository>()),
-          ),
+          create: (context) => GetIt.instance<FileBloc>(),
         ),
         BlocProvider(
-          create: (context) => FavoriteBloc(
-            addFavoriteUseCase: GetIt.instance<AddFavorite>(),
-            getAllFavoritesUseCase: GetIt.instance<GetAllFavorites>(),
-            removeFavoriteUseCase: GetIt.instance<RemoveFavorite>(),
-          ),
+          create: (context) => GetIt.instance<FavoriteBloc>(),
         ),
       ],
-      child:  MaterialApp(
+      child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomePage(favoriteBloc: FavoriteBloc(
-            addFavoriteUseCase: GetIt.instance<AddFavorite>(),
-            getAllFavoritesUseCase: GetIt.instance<GetAllFavorites>(),
-            removeFavoriteUseCase: GetIt.instance<RemoveFavorite>(),
-          ),),
+        home: HomePage(),
       ),
     );
   }
