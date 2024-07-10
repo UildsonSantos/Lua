@@ -39,6 +39,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   bool _showButton = true;
   late ScrollController _scrollController;
   final Set<String> _selectedItems = {};
+  bool _multiSelectMode = false;
 
   @override
   void initState() {
@@ -119,6 +120,17 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     });
   }
 
+  void _toggleMultiSelectMode(String path) {
+    setState(() {
+      if (_multiSelectMode) {
+        _toggleSelection(path);
+      } else {
+        _multiSelectMode = true;
+        _toggleSelection(path);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FileBloc, FileState>(
@@ -167,15 +179,16 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                   itemBuilder: (context, index) {
                     final item = contents[index];
                     return InkWell(
-                      onLongPress: () => _toggleSelection(item['path']),
+                      onLongPress: () => _toggleMultiSelectMode(item['path']),
                       child: Container(
                         color: _selectedItems.contains(item['path'])
                             ? Colors.grey.shade400
                             : Colors.transparent,
                         child: FolderWidget(
                           directoryInfo: DirectoryInfo.fromMap(contents[index]),
-                          onTap: () =>
-                              _handleFileSelection(contents[index]['path']),
+                          onTap: () => _multiSelectMode
+                              ? _toggleSelection(item['path'])
+                              : _handleFileSelection(contents[index]['path']),
                         ),
                       ),
                     );
