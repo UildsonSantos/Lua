@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lua/features/files_explorer/presentation/blocs/blocs.dart';
 import 'package:lua/shared/data/models/models.dart';
 import 'package:lua/shared/presentation/widgets/widgets.dart';
+import 'package:path/path.dart' as p;
 
 class FileExplorerPage extends StatelessWidget {
   final String initialDirectory;
@@ -40,6 +41,7 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
   late ScrollController _scrollController;
   final Set<String> _selectedItems = {};
   bool _multiSelectMode = false;
+  bool _showSelectedItemsSheet = false;
 
   @override
   void initState() {
@@ -131,6 +133,12 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
     });
   }
 
+  void _toggleSelectedItemsSheet() {
+    setState(() {
+      _showSelectedItemsSheet = !_showSelectedItemsSheet;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FileBloc, FileState>(
@@ -205,9 +213,45 @@ class _FileExplorerPageViewState extends State<FileExplorerPageView> {
                       duration: const Duration(milliseconds: 300),
                       child: const Icon(Icons.play_circle_rounded),
                     ),
-                    onPressed: () {},
+                    onPressed: _toggleSelectedItemsSheet,
                   ),
                 ),
+                if (_showSelectedItemsSheet)
+                  DraggableScrollableSheet(
+                    initialChildSize: 1,
+                    minChildSize: 0.1,
+                    maxChildSize: 1,
+                    builder: (context, scrollController) {
+                      return Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(5)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, -5),
+                            ),
+                          ],
+                        ),
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount: _selectedItems.length,
+                          itemBuilder: (context, index) {
+                            final selectedItem =
+                                _selectedItems.elementAt(index);
+                            return ListTile(
+                              title: Text(p.basename(selectedItem)),
+                              onTap: () {
+                                // Handle tap on selected item
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           );
